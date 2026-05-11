@@ -556,6 +556,121 @@ a{color:var(--primary);text-decoration:none;}
 .table tr:hover td{background:var(--border-soft);}
 .table-scroll{overflow-x:auto;}
 
+/* ============ STRIPE CHECKOUT (simulé) ============ */
+.stripe-overlay{
+  position:fixed;inset:0;z-index:2000;
+  background:#f6f9fc;
+  display:none;flex-direction:column;
+  overflow-y:auto;
+}
+.stripe-overlay.active{display:flex;}
+.stripe-bar{
+  background:#0a2540;color:#fff;
+  padding:14px 22px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:5;
+}
+.stripe-brand{display:flex;align-items:center;gap:10px;}
+.stripe-close{
+  background:transparent;border:none;color:#fff;
+  font-size:32px;line-height:1;cursor:pointer;
+  width:36px;height:36px;border-radius:8px;
+}
+.stripe-close:hover{background:rgba(255,255,255,.1);}
+.stripe-body{
+  flex:1;display:grid;grid-template-columns:1fr 1fr;
+  max-width:1100px;margin:0 auto;width:100%;
+  gap:0;padding:32px;
+}
+@media (max-width:760px){
+  .stripe-body{grid-template-columns:1fr;padding:18px;}
+}
+.stripe-left{padding:22px 32px 22px 0;border-right:1px solid #e3e8ee;}
+@media (max-width:760px){.stripe-left{border-right:none;border-bottom:1px solid #e3e8ee;padding:0 0 24px;}}
+.stripe-merchant{
+  color:#425466;font-size:13px;font-weight:500;
+  text-transform:uppercase;letter-spacing:.4px;margin-bottom:6px;
+}
+.stripe-amount{font-size:36px;font-weight:700;color:#0a2540;letter-spacing:-1px;margin-bottom:4px;}
+.stripe-desc{color:#525f7f;font-size:14px;margin-bottom:22px;}
+.stripe-info-card{
+  background:#fff;border:1px solid #e3e8ee;border-radius:8px;
+  padding:16px;
+}
+.stripe-info-row{
+  display:flex;justify-content:space-between;
+  padding:8px 0;font-size:14px;color:#525f7f;
+  border-bottom:1px solid #e3e8ee;
+}
+.stripe-info-row:last-child{border-bottom:none;}
+.stripe-info-row strong{color:#0a2540;font-weight:600;}
+.stripe-info-hint{
+  margin-top:12px;padding:10px;background:#fef9c3;
+  border-radius:6px;font-size:12px;color:#854d0e;
+}
+.stripe-right{padding:0 0 0 32px;}
+@media (max-width:760px){.stripe-right{padding:24px 0 0;}}
+.stripe-form-title{font-size:18px;font-weight:600;color:#0a2540;margin-bottom:18px;}
+.stripe-label{display:block;margin-bottom:14px;font-size:13px;color:#425466;font-weight:500;}
+.stripe-input{
+  display:block;width:100%;
+  padding:11px 13px;margin-top:4px;
+  border:1px solid #cfd7df;border-radius:6px;
+  font-size:15px;color:#0a2540;
+  background:#fff;
+  transition:box-shadow .15s,border-color .15s;
+}
+.stripe-input:focus{outline:none;border-color:#635bff;box-shadow:0 0 0 3px rgba(99,91,255,.15);}
+.stripe-row{display:flex;gap:12px;}
+.stripe-test-cards{
+  background:#eef2ff;border-radius:6px;padding:12px;
+  font-size:12px;color:#3730a3;margin-bottom:16px;line-height:1.7;
+}
+.stripe-test-cards code{
+  background:#fff;padding:1px 6px;border-radius:4px;
+  font-family:'SF Mono',Menlo,monospace;color:#0a2540;
+}
+.stripe-pay-btn{
+  width:100%;padding:13px;
+  background:#635bff;color:#fff;
+  border:none;border-radius:6px;
+  font-size:15px;font-weight:600;
+  cursor:pointer;
+  transition:background .15s;
+}
+.stripe-pay-btn:hover{background:#0a2540;}
+.stripe-pay-btn:disabled{background:#a3a3a3;cursor:wait;}
+.stripe-secure{
+  text-align:center;color:#8898aa;font-size:12px;margin-top:14px;
+}
+
+/* ============ STRIPE STATUS BADGES ============ */
+.stripe-status-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:20px;margin-bottom:18px;
+}
+.stripe-status-head{display:flex;align-items:center;gap:14px;margin-bottom:14px;}
+.stripe-status-icon{
+  width:44px;height:44px;border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;flex-shrink:0;
+}
+.stripe-status-icon.active{background:#dcfce7;color:#16a34a;}
+.stripe-status-icon.pending{background:#fef3c7;color:#d97706;}
+.stripe-status-icon.restricted{background:#fee2e2;color:#dc2626;}
+.stripe-status-icon.none{background:var(--border-soft);color:var(--text-mute);}
+.stripe-status-title{font-size:16px;font-weight:700;color:var(--text);}
+.stripe-status-sub{font-size:13px;color:var(--text-mute);margin-top:2px;}
+.stripe-status-body{font-size:14px;color:var(--text-soft);line-height:1.6;margin-bottom:14px;}
+.pay-stat-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:12px;margin-bottom:18px;}
+.pay-stat-card{
+  background:var(--surface);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px;
+}
+.pay-stat-label{font-size:11px;color:var(--text-mute);text-transform:uppercase;letter-spacing:.3px;margin-bottom:6px;}
+.pay-stat-value{font-size:22px;font-weight:700;color:var(--text);}
+.pay-stat-sub{font-size:12px;color:var(--text-mute);margin-top:2px;}
+
 /* ============ MODAL ============ */
 .modal-backdrop{
   position:fixed;inset:0;
@@ -776,7 +891,7 @@ a{color:var(--primary);text-decoration:none;}
     </div>
     <button class="splash-demo" id="btnDemo">🎭 Mode démonstration — Tester sans compte</button>
   </div>
-  <div class="splash-footer">v0.2 — 2026 • TaxiBato Martinique</div>
+  <div class="splash-footer">v0.3 — 2026 • TaxiBato Martinique</div>
 </section>
 
 <!-- ===================== LOGIN ===================== -->
@@ -896,6 +1011,7 @@ a{color:var(--primary);text-decoration:none;}
       <div class="tab active" data-captab="dashboard">🏠 Tableau de bord</div>
       <div class="tab" data-captab="requests">📨 Demandes</div>
       <div class="tab" data-captab="history">🧾 Historique</div>
+      <div class="tab" data-captab="payments">💳 Paiements</div>
     </div>
 
     <div class="section active" data-capsection="dashboard">
@@ -932,6 +1048,10 @@ a{color:var(--primary);text-decoration:none;}
       <h3 class="mb-3">Mes courses terminées</h3>
       <div class="ride-list" id="capHistoryList"></div>
     </div>
+
+    <div class="section" data-capsection="payments">
+      <div id="capPaymentsBox"></div>
+    </div>
   </div>
 </section>
 
@@ -954,6 +1074,7 @@ a{color:var(--primary);text-decoration:none;}
       <div class="tab" data-admtab="rides">🛥️ Courses</div>
       <div class="tab" data-admtab="captains">⚓ Capitaines</div>
       <div class="tab" data-admtab="passengers">🧳 Passagers</div>
+      <div class="tab" data-admtab="payments">💳 Paiements</div>
       <div class="tab" data-admtab="audit">📋 Audit</div>
     </div>
 
@@ -993,12 +1114,74 @@ a{color:var(--primary);text-decoration:none;}
       <div class="table-wrap"><div class="table-scroll"><table class="table" id="admPaxTable"></table></div></div>
     </div>
 
+    <div class="section" data-admsection="payments">
+      <div id="admPaymentsBox"></div>
+    </div>
+
     <div class="section" data-admsection="audit">
       <h3 class="mb-3">Journal d'audit</h3>
       <div class="table-wrap"><div class="table-scroll"><table class="table" id="admAuditTable"></table></div></div>
     </div>
   </div>
 </section>
+
+<!-- ===================== STRIPE CHECKOUT (simulé en démo) ===================== -->
+<div class="stripe-overlay" id="stripeCheckout">
+  <div class="stripe-bar">
+    <div class="stripe-brand">
+      <svg width="60" height="25" viewBox="0 0 60 25" fill="none"><path d="M59.5 14.34c0-4.27-2.07-7.64-6.03-7.64s-6.36 3.37-6.36 7.61c0 5.02 2.84 7.55 6.9 7.55 1.98 0 3.48-.45 4.61-1.08v-3.32c-1.13.56-2.42.91-4.06.91-1.61 0-3.04-.56-3.22-2.51h8.13c0-.21.03-1.05.03-1.52zm-8.21-1.6c0-1.87 1.14-2.65 2.18-2.65 1.01 0 2.08.78 2.08 2.65h-4.26z" fill="#fff"/></svg>
+      <span style="color:#fff;font-weight:700;font-size:15px;letter-spacing:-0.3px;">Checkout</span>
+    </div>
+    <button class="stripe-close" onclick="closeStripeCheckout(false)">×</button>
+  </div>
+  <div class="stripe-body">
+    <div class="stripe-left">
+      <div class="stripe-merchant">TaxiBato Martinique</div>
+      <div class="stripe-amount" id="stripeAmount">0,00 €</div>
+      <div class="stripe-desc" id="stripeDesc">Pré-autorisation traversée</div>
+      <div class="stripe-info-card">
+        <div class="stripe-info-row">
+          <span>Pré-autorisation</span>
+          <strong id="stripeAuthAmount">0,00 €</strong>
+        </div>
+        <div class="stripe-info-row">
+          <span>Débit effectif</span>
+          <strong>Après la course</strong>
+        </div>
+        <div class="stripe-info-hint">⚠️ Mode démo — aucun débit réel n'est effectué. En v0.4 : Stripe Checkout réel.</div>
+      </div>
+    </div>
+    <div class="stripe-right">
+      <h3 class="stripe-form-title">Coordonnées bancaires</h3>
+      <label class="stripe-label">Email
+        <input type="email" class="stripe-input" id="stripeEmail" value="passager@taxibato.mq" placeholder="email@exemple.com">
+      </label>
+      <label class="stripe-label">Numéro de carte
+        <input type="text" class="stripe-input" id="stripeCardNum" value="4242 4242 4242 4242" maxlength="19" placeholder="1234 1234 1234 1234">
+      </label>
+      <div class="stripe-row">
+        <label class="stripe-label" style="flex:1;">Expiration
+          <input type="text" class="stripe-input" id="stripeCardExp" value="12 / 28" maxlength="7" placeholder="MM / AA">
+        </label>
+        <label class="stripe-label" style="flex:1;">CVC
+          <input type="text" class="stripe-input" id="stripeCardCvc" value="123" maxlength="4" placeholder="CVC">
+        </label>
+      </div>
+      <label class="stripe-label">Titulaire
+        <input type="text" class="stripe-input" id="stripeCardName" value="" placeholder="Nom comme inscrit sur la carte">
+      </label>
+      <div class="stripe-test-cards">
+        💡 <strong>Cartes de test :</strong><br>
+        ✅ <code>4242 4242 4242 4242</code> — paiement accepté<br>
+        ❌ <code>4000 0000 0000 0002</code> — paiement refusé
+      </div>
+      <button class="stripe-pay-btn" id="stripePayBtn" onclick="confirmStripePayment()">
+        Pré-autoriser <span id="stripePayAmount">0,00 €</span>
+      </button>
+      <div class="stripe-secure">🔒 Paiement sécurisé par Stripe</div>
+    </div>
+  </div>
+</div>
 
 <!-- ===================== MODAL ===================== -->
 <div class="modal-backdrop" id="modal">
@@ -1028,7 +1211,7 @@ a{color:var(--primary);text-decoration:none;}
 /* =================================================================
    TaxiBato v0.1 — Transport maritime à la demande Martinique
    ================================================================= */
-const APP_VERSION = 'v0.2';
+const APP_VERSION = 'v0.3';
 const APP_NAME = 'TaxiBato';
 
 /* ───────── CONFIG BACKEND ──────────
@@ -1039,6 +1222,15 @@ const APP_NAME = 'TaxiBato';
 const BACKEND_URL = '';
 const COMMISSION_RATE = 0.10;
 const POLL_INTERVAL = 8000; // ms
+
+/* ──────── STRIPE CONFIG ────────
+ * v0.3 : mode démo simule entièrement Stripe (pas besoin de clés)
+ * v0.4 : remplir STRIPE_PUBLISHABLE_KEY pour activer les vraies API
+ * Backend Apps Script doit avoir STRIPE_SECRET_KEY en propriété de script
+ */
+const STRIPE_PUBLISHABLE_KEY = ''; // pk_test_... puis pk_live_...
+const STRIPE_FEE_PERCENT = 0.015;  // 1.5% Stripe
+const STRIPE_FEE_FIXED = 0.25;     // 0.25€ Stripe
 const GEO_UPDATE_INTERVAL = 10000;
 
 /* ───────── PORTS DE LA BAIE ───────── */
@@ -1178,10 +1370,10 @@ function buildDemoData(){
   const now = Date.now();
   const users = [
     { id:'adm-demo', role:'admin', name:'Olivier (démo)', phone:'0696000000', pin:'1290#5', boat:'', active:true },
-    { id:'cap1', role:'captain', name:'Jean-Marc Belrose', phone:'0696112233', pin:'112233', boat:'Madinina Express — 8 places', port:'fdf', active:true },
-    { id:'cap2', role:'captain', name:'Mickaël Sainte-Rose', phone:'0696445566', pin:'445566', boat:'Karukera II — 6 places', port:'ti', active:true },
-    { id:'cap3', role:'captain', name:'Patricia Édouard',  phone:'0696778899', pin:'778899', boat:'Bel’Eau — 10 places', port:'sch', active:true },
-    { id:'cap4', role:'captain', name:'Yannick Larcher',  phone:'0696334455', pin:'334455', boat:'Yole Tigre — 6 places', port:'aa', active:true },
+    { id:'cap1', role:'captain', name:'Jean-Marc Belrose', phone:'0696112233', pin:'112233', boat:'Madinina Express — 8 places', port:'fdf', active:true, stripeStatus:'active',     stripeAccountId:'acct_demo_1' },
+    { id:'cap2', role:'captain', name:'Mickaël Sainte-Rose', phone:'0696445566', pin:'445566', boat:'Karukera II — 6 places', port:'ti', active:true, stripeStatus:'pending',    stripeAccountId:'acct_demo_2' },
+    { id:'cap3', role:'captain', name:'Patricia Édouard',  phone:'0696778899', pin:'778899', boat:'Bel’Eau — 10 places', port:'sch', active:true, stripeStatus:'restricted', stripeAccountId:'acct_demo_3' },
+    { id:'cap4', role:'captain', name:'Yannick Larcher',  phone:'0696334455', pin:'334455', boat:'Yole Tigre — 6 places', port:'aa', active:true, stripeStatus:'none',      stripeAccountId:null },
     { id:'pax1', role:'passenger', name:'Sophie Dumas',    phone:'0696223344', pin:'223344', active:true },
     { id:'pax2', role:'passenger', name:'Marc Lacombe',    phone:'0696556677', pin:'556677', active:true },
     { id:'pax3', role:'passenger', name:'Émilie Roy',      phone:'0696889900', pin:'889900', active:true },
@@ -1218,6 +1410,11 @@ function mkRide({passengerId,captainId,from,to,status,ago,paxCount}){
   const captainEarning = +(fare - commission).toFixed(2);
   const ts = Date.now() - ago;
   const dist = +(getDistanceKm(PORT_BY_ID[from], PORT_BY_ID[to])).toFixed(2);
+  // paymentStatus reflète l'état Stripe :
+  //   authorized = pré-auto en attente, captured = encaissé, refunded = remboursé
+  const payStatus = status==='completed' ? 'captured'
+                  : status==='cancelled' ? 'refunded'
+                  : 'authorized';
   return {
     id: 'r-'+Math.random().toString(36).slice(2,9),
     createdAt: ts,
@@ -1229,7 +1426,10 @@ function mkRide({passengerId,captainId,from,to,status,ago,paxCount}){
     commission,
     captainEarning,
     distance: dist,
-    note: ''
+    note: '',
+    paymentStatus: payStatus,
+    paymentIntentId: 'pi_demo_'+Math.random().toString(36).slice(2,11),
+    cardLast4: '4242'
   };
 }
 
@@ -1555,7 +1755,8 @@ async function onRequestRide(){
   const note = document.getElementById('paxNote').value.trim();
   const fare = getFare(from,to);
   const commission = +(fare*COMMISSION_RATE).toFixed(2);
-  const ride = {
+  // Construire la course PRÉ-validée mais on attend la pré-auto carte avant de la créer
+  const draft = {
     id: 'r-'+Date.now().toString(36),
     createdAt: Date.now(),
     startedAt:null, completedAt:null,
@@ -1566,29 +1767,46 @@ async function onRequestRide(){
     commission,
     captainEarning: +(fare-commission).toFixed(2),
     distance: +(getDistanceKm(PORT_BY_ID[from],PORT_BY_ID[to])).toFixed(2),
-    note
+    note,
+    paymentStatus: 'pending_auth',
+    paymentIntentId: null,
+    cardLast4: null
   };
-  state.data.rides.push(ride);
-  state.liveRideId = ride.id;
-  addAudit(state.currentUser.id, 'ride_requested', PORT_BY_ID[from].name+' → '+PORT_BY_ID[to].name);
-  await api('newRide', ride);
-  toast('Demande envoyée aux capitaines disponibles','success','🚤');
-  document.getElementById('paxNote').value = '';
-  renderPassengerLiveRide();
-  renderPassengerRides();
-  refreshPassengerMap();
+  // Ouvrir le Checkout (simulé en démo, réel via Stripe sinon)
+  openStripeCheckout(draft, async (result)=>{
+    if(!result.success){
+      toast('Paiement annulé — aucun frais','info');
+      return;
+    }
+    // Pré-autorisation OK, on confirme la course
+    draft.paymentStatus = 'authorized';
+    draft.paymentIntentId = result.paymentIntentId;
+    draft.cardLast4 = result.cardLast4;
+    state.data.rides.push(draft);
+    state.liveRideId = draft.id;
+    addAudit(state.currentUser.id, 'ride_requested', PORT_BY_ID[from].name+' → '+PORT_BY_ID[to].name+' • pré-auto '+fare+'€');
+    await api('newRide', draft);
+    toast('✅ Carte pré-autorisée • '+fare+'€ bloqués','success','💳');
+    document.getElementById('paxNote').value = '';
+    renderPassengerLiveRide();
+    renderPassengerRides();
+    refreshPassengerMap();
+  });
 }
 
 async function cancelRide(rideId){
-  if(!confirm('Annuler cette course ?')) return;
+  if(!confirm('Annuler cette course ? La pré-autorisation sera libérée et aucun montant ne sera débité.')) return;
   const r = state.data.rides.find(x=>x.id===rideId);
   if(!r) return;
   r.status='cancelled';
   r.completedAt = Date.now();
+  r.paymentStatus = 'refunded';
   state.liveRideId = null;
-  addAudit(state.currentUser.id,'ride_cancelled',rideId);
+  addAudit(state.currentUser.id,'ride_cancelled', rideId+' • pré-auto libérée');
+  // v0.4 : ici appel API Stripe → paymentIntents.cancel(r.paymentIntentId)
+  await api('cancelPayment', { paymentIntentId: r.paymentIntentId, rideId: r.id });
   await api('updateRide', r);
-  toast('Course annulée','info');
+  toast('Course annulée • Pré-autorisation libérée','info','💳');
   renderPassengerLiveRide();
   renderPassengerRides();
 }
@@ -1703,6 +1921,7 @@ function setupCaptainApp(){
   renderCaptainRequests();
   renderCaptainHistory();
   renderCaptainLiveRide();
+  renderCaptainPayments();
 }
 
 function toggleCaptainAvail(){
@@ -1874,11 +2093,17 @@ window.acceptRide = async function(rideId){
   const r = state.data.rides.find(x=>x.id===rideId);
   if(!r) return;
   if(!state.captainAvailable){ toast('Active ton statut « En service » d\'abord','warning'); return; }
-  r.captainId = state.currentUser.id;
+  // Vérifier que le capitaine peut recevoir des paiements
+  const cap = state.currentUser;
+  if(cap.stripeStatus !== 'active'){
+    toast('Active d\'abord ton compte Stripe (onglet 💳 Paiements)','warning','⚠️');
+    return;
+  }
+  r.captainId = cap.id;
   r.status = 'accepted';
-  addAudit(state.currentUser.id,'ride_accepted',rideId);
+  addAudit(cap.id,'ride_accepted',rideId);
   await api('updateRide', r);
-  toast('Course acceptée','success','✅');
+  toast('Course acceptée • '+r.captainEarning+'€ vous reviendront','success','✅');
   renderCaptainRequests();
   renderCaptainLiveRide();
 };
@@ -1897,12 +2122,16 @@ window.completeRide = async function(rideId){
   if(!r) return;
   r.status = 'completed';
   r.completedAt = Date.now();
-  addAudit(state.currentUser.id,'ride_completed',rideId);
+  r.paymentStatus = 'captured'; // pré-auto capturée
+  addAudit(state.currentUser.id,'ride_completed',rideId+' • '+r.price+'€ capturés');
+  // v0.4 : ici appel API Stripe → paymentIntents.capture() avec application_fee_amount = commission
+  await api('capturePayment', { paymentIntentId: r.paymentIntentId, rideId: r.id, amount: r.price, fee: r.commission });
   await api('updateRide', r);
-  toast('Course terminée — +'+r.captainEarning+' € (commission TaxiBato '+r.commission+' €)','success','💰');
+  toast('💰 +'+r.captainEarning+'€ encaissés (commission TaxiBato '+r.commission+'€)','success','💰');
   renderCaptainLiveRide();
   renderCaptainHistory();
   renderCaptainDashboard();
+  renderCaptainPayments();
 };
 
 /* ===================================================================
@@ -1928,6 +2157,7 @@ function renderAdminAll(){
   renderAdminRides();
   renderAdminCaptains();
   renderAdminPassengers();
+  renderAdminPayments();
   renderAdminAudit();
   refreshAdminMap();
 }
@@ -2226,6 +2456,279 @@ function formatDate(ts){
 function addAudit(userId, action, detail){
   state.data.audit.unshift({ id:'a-'+Date.now().toString(36), timestamp:Date.now(), userId, action, detail });
   if(state.data.audit.length>500) state.data.audit.length = 500;
+}
+
+/* ===================================================================
+   STRIPE — CHECKOUT SIMULÉ (v0.3 démo) + branchement v0.4 (réel)
+   =================================================================== */
+let _stripeCheckoutCb = null;
+let _stripeCheckoutDraft = null;
+
+function openStripeCheckout(ride, callback){
+  _stripeCheckoutCb = callback;
+  _stripeCheckoutDraft = ride;
+  document.getElementById('stripeAmount').textContent = ride.price.toFixed(2).replace('.',',')+' €';
+  document.getElementById('stripeAuthAmount').textContent = ride.price.toFixed(2).replace('.',',')+' €';
+  document.getElementById('stripePayAmount').textContent = ride.price.toFixed(2).replace('.',',')+' €';
+  document.getElementById('stripeDesc').textContent =
+    PORT_BY_ID[ride.from].name+' → '+PORT_BY_ID[ride.to].name+' • '+ride.paxCount+' passager(s)';
+  document.getElementById('stripeCardName').value = state.currentUser?.name || '';
+  document.getElementById('stripeCheckout').classList.add('active');
+  // v0.4 : remplacer par stripe.redirectToCheckout({ sessionId }) après avoir
+  // appelé api('createCheckoutSession', { ride }) côté backend
+}
+function closeStripeCheckout(success){
+  document.getElementById('stripeCheckout').classList.remove('active');
+  if(_stripeCheckoutCb){
+    _stripeCheckoutCb({ success: !!success });
+    _stripeCheckoutCb = null;
+    _stripeCheckoutDraft = null;
+  }
+}
+window.confirmStripePayment = async function(){
+  const card = document.getElementById('stripeCardNum').value.replace(/\s/g,'');
+  const exp = document.getElementById('stripeCardExp').value;
+  const cvc = document.getElementById('stripeCardCvc').value;
+  const name = document.getElementById('stripeCardName').value.trim();
+  if(!card || card.length<15){ toast('Numéro de carte invalide','warning'); return; }
+  if(!exp.match(/\d{1,2}\s*\/\s*\d{2}/)){ toast('Date d\'expiration invalide','warning'); return; }
+  if(!cvc || cvc.length<3){ toast('CVC invalide','warning'); return; }
+  if(!name){ toast('Nom du titulaire requis','warning'); return; }
+  // Carte 4000... = refusée (simu Stripe)
+  if(card.startsWith('4000000000000002')){
+    toast('💳 Carte refusée par votre banque','error');
+    return;
+  }
+  const btn = document.getElementById('stripePayBtn');
+  btn.disabled = true;
+  btn.textContent = 'Traitement en cours…';
+  await new Promise(r=>setTimeout(r, 1200)); // simu latence Stripe
+  document.getElementById('stripeCheckout').classList.remove('active');
+  btn.disabled = false;
+  btn.innerHTML = 'Pré-autoriser <span id="stripePayAmount">'+(_stripeCheckoutDraft?.price.toFixed(2).replace('.',',')||'0,00')+' €</span>';
+  if(_stripeCheckoutCb){
+    _stripeCheckoutCb({
+      success: true,
+      paymentIntentId: 'pi_demo_'+Date.now().toString(36),
+      cardLast4: card.slice(-4)
+    });
+    _stripeCheckoutCb = null;
+    _stripeCheckoutDraft = null;
+  }
+};
+
+/* ───────── ONBOARDING CAPITAINE (simulé) ───────── */
+function startStripeOnboarding(){
+  // v0.4 : appel api('createConnectAccount', { userId }) puis redirect vers AccountLink Stripe
+  const cap = state.currentUser;
+  openModal('💳 Activer les paiements en ligne',
+    `<div style="line-height:1.7;color:var(--text-soft);font-size:14px;">
+      <p style="margin-bottom:14px;"><strong>Stripe Connect Express</strong> — pour recevoir directement les paiements des passagers sur ton compte bancaire.</p>
+      <p style="margin-bottom:14px;">Tu seras redirigé vers Stripe pour fournir :</p>
+      <ul style="margin-left:18px;margin-bottom:14px;">
+        <li>Une pièce d'identité (CNI ou passeport)</li>
+        <li>Un IBAN (compte capitaine, pas perso)</li>
+        <li>Ton statut professionnel (auto-entrepreneur ou société)</li>
+      </ul>
+      <p style="margin-bottom:14px;color:var(--text-mute);font-size:13px;">⏱️ Compte 5-10 minutes. Validation Stripe en 24-48h.</p>
+      <p style="background:var(--primary-light);padding:10px;border-radius:8px;font-size:12px;">
+        💰 <strong>Frais :</strong> 1,5% + 0,25€ par paiement (déduits de ta part).<br>
+        Sur une course à 15€ : tu reçois 13,02€ (au lieu de 13,50€ en cash).
+      </p>
+     </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal()">Plus tard</button>
+     <button class="btn btn-primary" onclick="simulateStripeOnboarding()">Continuer vers Stripe →</button>`
+  );
+}
+window.simulateStripeOnboarding = async function(){
+  closeModal();
+  showLoader(true);
+  toast('Redirection vers Stripe…', 'info', '💳');
+  await new Promise(r=>setTimeout(r, 1500));
+  // En démo : on bascule directement en "pending" puis "active" pour montrer le flow
+  state.currentUser.stripeStatus = 'pending';
+  state.currentUser.stripeAccountId = 'acct_demo_'+state.currentUser.id;
+  await api('saveUser', state.currentUser);
+  addAudit(state.currentUser.id,'stripe_onboarding_started','Compte créé');
+  await new Promise(r=>setTimeout(r, 1500));
+  state.currentUser.stripeStatus = 'active';
+  await api('saveUser', state.currentUser);
+  addAudit(state.currentUser.id,'stripe_onboarding_completed','Compte validé');
+  showLoader(false);
+  toast('✅ Compte Stripe activé — tu peux recevoir des paiements','success','💰');
+  renderCaptainPayments();
+};
+
+/* ───────── RENDER PAIEMENTS CAPITAINE ───────── */
+function renderCaptainPayments(){
+  const box = document.getElementById('capPaymentsBox');
+  if(!box) return;
+  const cap = state.currentUser;
+  const status = cap.stripeStatus || 'none';
+  const statusMap = {
+    active:    { icon:'✅', title:'Compte activé', sub:'Tu peux recevoir des paiements', body:'Ton compte Stripe est opérationnel. Les paiements des passagers sont automatiquement versés sur ton IBAN sous 2 jours ouvrés (déduction faite des frais Stripe et de la commission TaxiBato).' },
+    pending:   { icon:'⏳', title:'En attente de validation', sub:'Stripe vérifie tes documents', body:'Ton dossier est en cours de validation par Stripe. Tu ne peux pas encore accepter de courses payées en ligne. Validation habituelle : 24-48h.' },
+    restricted:{ icon:'⚠️', title:'Documents requis', sub:'Action nécessaire', body:'Stripe demande des informations complémentaires (justificatif de domicile, document fiscal…). Connecte-toi à ton espace Stripe pour compléter.' },
+    none:      { icon:'❌', title:'Compte non activé', sub:'Tu ne peux pas accepter de paiements', body:'Pour pouvoir accepter des courses, tu dois activer ton compte Stripe Connect. C\'est gratuit et ça prend 5-10 minutes.' }
+  };
+  const info = statusMap[status];
+  const myRides = state.data.rides.filter(r=>r.captainId===cap.id);
+  const captured = myRides.filter(r=>r.paymentStatus==='captured');
+  const totalEarnings = captured.reduce((s,r)=>s+r.captainEarning,0);
+  const totalCommission = captured.reduce((s,r)=>s+r.commission,0);
+  const totalStripeFees = captured.reduce((s,r)=>s+r.price*STRIPE_FEE_PERCENT+STRIPE_FEE_FIXED,0);
+  const netEarnings = totalEarnings - totalStripeFees;
+
+  let html = `
+    <div class="stripe-status-card">
+      <div class="stripe-status-head">
+        <div class="stripe-status-icon ${status}">${info.icon}</div>
+        <div>
+          <div class="stripe-status-title">${info.title}</div>
+          <div class="stripe-status-sub">${info.sub}</div>
+        </div>
+      </div>
+      <div class="stripe-status-body">${info.body}</div>
+      ${status==='none' ? `<button class="btn btn-primary btn-block" onclick="startStripeOnboarding()">💳 Activer mon compte Stripe</button>` : ''}
+      ${status==='restricted' ? `<button class="btn btn-warning btn-block" onclick="startStripeOnboarding()">📄 Compléter mon dossier</button>` : ''}
+      ${status==='active' ? `<div style="font-size:12px;color:var(--text-mute);font-family:'SF Mono',monospace;padding:8px;background:var(--border-soft);border-radius:6px;">Compte : ${cap.stripeAccountId||'—'}</div>` : ''}
+    </div>`;
+
+  if(status==='active'){
+    html += `
+      <h3 style="margin:24px 0 12px;">Mes encaissements</h3>
+      <div class="pay-stat-grid">
+        <div class="pay-stat-card">
+          <div class="pay-stat-label">Brut encaissé</div>
+          <div class="pay-stat-value">${totalEarnings.toFixed(2)} €</div>
+          <div class="pay-stat-sub">${captured.length} course(s)</div>
+        </div>
+        <div class="pay-stat-card">
+          <div class="pay-stat-label">Frais Stripe</div>
+          <div class="pay-stat-value" style="color:var(--text-mute);">−${totalStripeFees.toFixed(2)} €</div>
+          <div class="pay-stat-sub">1,5% + 0,25€/course</div>
+        </div>
+        <div class="pay-stat-card">
+          <div class="pay-stat-label">Commission TaxiBato</div>
+          <div class="pay-stat-value" style="color:var(--text-mute);">${totalCommission.toFixed(2)} €</div>
+          <div class="pay-stat-sub">(déjà déduite)</div>
+        </div>
+        <div class="pay-stat-card" style="background:var(--primary-light);border-color:var(--primary);">
+          <div class="pay-stat-label">Net sur ton IBAN</div>
+          <div class="pay-stat-value" style="color:var(--primary);">${netEarnings.toFixed(2)} €</div>
+          <div class="pay-stat-sub">virement J+2</div>
+        </div>
+      </div>
+      <h4 style="margin:18px 0 10px;font-size:14px;">Dernières transactions</h4>
+      <div class="ride-list">
+        ${captured.length===0 ? '<div class="empty-state"><span class="empty-emoji">💳</span><p>Aucun encaissement pour l\'instant.</p></div>' :
+          captured.slice(0,10).map(r=>{
+            const fee = +(r.price*STRIPE_FEE_PERCENT+STRIPE_FEE_FIXED).toFixed(2);
+            return `<div class="ride-card">
+              <div class="ride-card-head">
+                <div>
+                  <div class="ride-route">${PORT_BY_ID[r.from].name}<span class="arrow">→</span>${PORT_BY_ID[r.to].name}</div>
+                  <div class="ride-meta">${formatDate(r.completedAt)} • •••• ${r.cardLast4||'4242'}</div>
+                </div>
+                <div style="text-align:right;">
+                  <div style="font-weight:700;color:var(--primary);">+${(r.captainEarning-fee).toFixed(2)} €</div>
+                  <div style="font-size:11px;color:var(--text-mute);">brut ${r.captainEarning}€ − ${fee}€</div>
+                </div>
+              </div>
+            </div>`;
+          }).join('')
+        }
+      </div>`;
+  }
+  box.innerHTML = html;
+}
+
+/* ───────── RENDER PAIEMENTS ADMIN ───────── */
+function renderAdminPayments(){
+  const box = document.getElementById('admPaymentsBox');
+  if(!box) return;
+  const rides = state.data.rides;
+  const captured = rides.filter(r=>r.paymentStatus==='captured');
+  const authorized = rides.filter(r=>r.paymentStatus==='authorized');
+  const refunded = rides.filter(r=>r.paymentStatus==='refunded');
+  const totalRevenue = captured.reduce((s,r)=>s+r.price,0);
+  const totalCommission = captured.reduce((s,r)=>s+r.commission,0);
+  const totalCaptainPaid = captured.reduce((s,r)=>s+r.captainEarning,0);
+  const captains = state.data.users.filter(u=>u.role==='captain');
+
+  let html = `
+    <h3 style="margin-bottom:12px;">Vue d'ensemble paiements</h3>
+    <div class="pay-stat-grid">
+      <div class="pay-stat-card" style="background:var(--primary-light);border-color:var(--primary);">
+        <div class="pay-stat-label">Commission TaxiBato</div>
+        <div class="pay-stat-value" style="color:var(--primary);">${totalCommission.toFixed(2)} €</div>
+        <div class="pay-stat-sub">cumul global</div>
+      </div>
+      <div class="pay-stat-card">
+        <div class="pay-stat-label">Recette totale</div>
+        <div class="pay-stat-value">${totalRevenue.toFixed(2)} €</div>
+        <div class="pay-stat-sub">${captured.length} encaissement(s)</div>
+      </div>
+      <div class="pay-stat-card">
+        <div class="pay-stat-label">Versé aux capitaines</div>
+        <div class="pay-stat-value">${totalCaptainPaid.toFixed(2)} €</div>
+        <div class="pay-stat-sub">via Stripe Connect</div>
+      </div>
+      <div class="pay-stat-card">
+        <div class="pay-stat-label">Pré-autos actives</div>
+        <div class="pay-stat-value" style="color:var(--warning);">${authorized.length}</div>
+        <div class="pay-stat-sub">en attente capture</div>
+      </div>
+    </div>
+
+    <h4 style="margin:24px 0 10px;font-size:15px;">Statut Stripe des capitaines</h4>
+    <div class="table-wrap"><div class="table-scroll"><table class="table">
+      <thead><tr><th>Capitaine</th><th>Statut</th><th>Compte</th><th>Courses encaissées</th><th>Versé</th></tr></thead>
+      <tbody>
+        ${captains.map(c=>{
+          const myCaptured = captured.filter(r=>r.captainId===c.id);
+          const myTotal = myCaptured.reduce((s,r)=>s+r.captainEarning,0);
+          const badges = {
+            active:'<span class="badge badge-success">✅ Activé</span>',
+            pending:'<span class="badge badge-warning">⏳ En attente</span>',
+            restricted:'<span class="badge badge-danger">⚠️ Bloqué</span>',
+            none:'<span class="badge">❌ Non activé</span>'
+          };
+          return `<tr>
+            <td><strong>${c.name}</strong><br><span class="muted" style="font-size:11px;">${c.boat||''}</span></td>
+            <td>${badges[c.stripeStatus||'none']}</td>
+            <td style="font-family:'SF Mono',monospace;font-size:11px;color:var(--text-mute);">${c.stripeAccountId||'—'}</td>
+            <td>${myCaptured.length}</td>
+            <td><strong>${myTotal.toFixed(2)} €</strong></td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div></div>
+
+    <h4 style="margin:24px 0 10px;font-size:15px;">Dernières transactions</h4>
+    <div class="table-wrap"><div class="table-scroll"><table class="table">
+      <thead><tr><th>Date</th><th>Course</th><th>Capitaine</th><th>Statut</th><th>Montant</th><th>Commission</th></tr></thead>
+      <tbody>
+        ${rides.slice(0,30).filter(r=>r.paymentStatus).sort((a,b)=>b.createdAt-a.createdAt).map(r=>{
+          const cap = userById(r.captainId);
+          const psBadge = {
+            captured:'<span class="badge badge-success">Encaissé</span>',
+            authorized:'<span class="badge badge-warning">Pré-auto</span>',
+            refunded:'<span class="badge">Remboursé</span>',
+            pending_auth:'<span class="badge">En attente</span>'
+          }[r.paymentStatus]||r.paymentStatus;
+          return `<tr>
+            <td style="font-size:12px;">${formatDate(r.createdAt)}</td>
+            <td style="font-size:12px;">${PORT_BY_ID[r.from].name} → ${PORT_BY_ID[r.to].name}</td>
+            <td>${cap?cap.name:'<span class="muted">—</span>'}</td>
+            <td>${psBadge}</td>
+            <td><strong>${r.price} €</strong></td>
+            <td style="color:var(--primary);font-weight:600;">${r.commission.toFixed(2)} €</td>
+          </tr>`;
+        }).join('')}
+      </tbody>
+    </table></div></div>`;
+  box.innerHTML = html;
 }
 
 /* ───────── POLLING / REFRESH ───────── */
