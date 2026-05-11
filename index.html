@@ -1,1 +1,2204 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover">
+<meta name="theme-color" content="#0d6b6e">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="TaxiBato">
+<title>TaxiBato — Transport maritime Martinique</title>
+<link rel="apple-touch-icon" href="data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d6b6e'/><text x='50' y='68' font-size='60' text-anchor='middle'>🛥️</text></svg>">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.css">
+<style>
+:root{
+  --primary:#0d6b6e;
+  --primary-dark:#08474a;
+  --primary-light:#e6f2f2;
+  --accent:#d97757;
+  --accent-light:#fdece4;
+  --sand:#f5efe3;
+  --sand-dark:#e8dcc0;
+  --bg:#fafaf7;
+  --surface:#ffffff;
+  --text:#1c2a2b;
+  --text-soft:#5a6b6d;
+  --text-mute:#8a9a9c;
+  --border:#e6e8e3;
+  --border-soft:#f0f1ec;
+  --success:#2d8659;
+  --success-light:#e2f3ea;
+  --warning:#c47d2a;
+  --warning-light:#fbf0dd;
+  --danger:#b03a3a;
+  --danger-light:#f8e3e3;
+  --info:#3a78b0;
+  --info-light:#e2eef9;
+  --shadow-sm:0 1px 3px rgba(13,42,43,.06);
+  --shadow:0 2px 12px rgba(13,42,43,.06);
+  --shadow-lg:0 8px 30px rgba(13,42,43,.10);
+  --radius-sm:6px;
+  --radius:10px;
+  --radius-lg:14px;
+  --radius-xl:20px;
+  --space-1:4px;
+  --space-2:8px;
+  --space-3:12px;
+  --space-4:16px;
+  --space-5:24px;
+  --space-6:32px;
+  --space-7:48px;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+html,body{margin:0;padding:0;height:100%;}
+body{
+  font-family:'Manrope',system-ui,-apple-system,sans-serif;
+  background:var(--bg);
+  color:var(--text);
+  font-size:15px;
+  line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+  overflow-x:hidden;
+}
+h1,h2,h3,h4{margin:0;font-weight:700;letter-spacing:-0.01em;}
+h1{font-size:24px;}
+h2{font-size:20px;}
+h3{font-size:17px;}
+h4{font-size:15px;}
+p{margin:0;}
+button{font-family:inherit;font-size:inherit;cursor:pointer;border:none;background:none;color:inherit;}
+input,select,textarea{font-family:inherit;font-size:inherit;}
+a{color:var(--primary);text-decoration:none;}
 
+/* ============ COMMON ELEMENTS ============ */
+.btn{
+  display:inline-flex;align-items:center;justify-content:center;gap:8px;
+  padding:12px 20px;border-radius:var(--radius);
+  font-weight:600;font-size:15px;
+  transition:all .18s ease;
+  cursor:pointer;border:1px solid transparent;
+  min-height:46px;
+  white-space:nowrap;
+}
+.btn-primary{background:var(--primary);color:#fff;}
+.btn-primary:hover{background:var(--primary-dark);}
+.btn-secondary{background:var(--surface);color:var(--text);border-color:var(--border);}
+.btn-secondary:hover{border-color:var(--primary);color:var(--primary);}
+.btn-ghost{background:transparent;color:var(--text-soft);}
+.btn-ghost:hover{background:var(--border-soft);}
+.btn-accent{background:var(--accent);color:#fff;}
+.btn-accent:hover{background:#bf6448;}
+.btn-danger{background:var(--danger);color:#fff;}
+.btn-danger:hover{background:#8e2e2e;}
+.btn-success{background:var(--success);color:#fff;}
+.btn-success:hover{background:#236a47;}
+.btn:disabled{opacity:.5;cursor:not-allowed;}
+.btn-block{width:100%;}
+.btn-sm{padding:8px 14px;min-height:36px;font-size:13px;}
+.btn-lg{padding:14px 24px;min-height:54px;font-size:16px;}
+
+.input,.select,.textarea{
+  width:100%;
+  padding:12px 14px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  background:var(--surface);
+  color:var(--text);
+  transition:border-color .15s,box-shadow .15s;
+  outline:none;
+  font-size:15px;
+  min-height:46px;
+}
+.input:focus,.select:focus,.textarea:focus{
+  border-color:var(--primary);
+  box-shadow:0 0 0 3px rgba(13,107,110,.12);
+}
+.input::placeholder,.textarea::placeholder{color:var(--text-mute);}
+.label{
+  display:block;font-size:13px;font-weight:600;color:var(--text-soft);
+  margin-bottom:6px;
+}
+.field{margin-bottom:14px;}
+
+.card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:18px;
+  box-shadow:var(--shadow-sm);
+}
+.badge{
+  display:inline-flex;align-items:center;gap:4px;
+  padding:3px 9px;border-radius:999px;
+  font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.04em;
+}
+.badge-success{background:var(--success-light);color:var(--success);}
+.badge-warning{background:var(--warning-light);color:var(--warning);}
+.badge-danger{background:var(--danger-light);color:var(--danger);}
+.badge-info{background:var(--info-light);color:var(--info);}
+.badge-neutral{background:var(--border-soft);color:var(--text-soft);}
+
+.divider{height:1px;background:var(--border);margin:16px 0;}
+.muted{color:var(--text-mute);}
+.text-soft{color:var(--text-soft);}
+.text-right{text-align:right;}
+.text-center{text-align:center;}
+.flex{display:flex;}
+.flex-col{flex-direction:column;}
+.items-center{align-items:center;}
+.justify-between{justify-content:space-between;}
+.gap-1{gap:4px;}.gap-2{gap:8px;}.gap-3{gap:12px;}.gap-4{gap:16px;}
+.mt-1{margin-top:4px;}.mt-2{margin-top:8px;}.mt-3{margin-top:12px;}.mt-4{margin-top:16px;}
+.mb-2{margin-bottom:8px;}.mb-3{margin-bottom:12px;}.mb-4{margin-bottom:16px;}
+.w-full{width:100%;}
+.font-bold{font-weight:700;}
+.font-semi{font-weight:600;}
+.text-sm{font-size:13px;}
+.text-lg{font-size:17px;}
+.text-xl{font-size:20px;}
+
+/* ============ SPLASH ============ */
+.splash{
+  min-height:100vh;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;
+  background:linear-gradient(165deg,#0d6b6e 0%,#08474a 70%,#063a3c 100%);
+  color:#fff;
+  position:relative;
+  overflow:hidden;
+}
+.splash::before{
+  content:'';position:absolute;inset:0;
+  background:
+    radial-gradient(circle at 20% 30%,rgba(255,255,255,.08) 0,transparent 40%),
+    radial-gradient(circle at 80% 70%,rgba(217,119,87,.15) 0,transparent 50%);
+  pointer-events:none;
+}
+.splash-content{position:relative;z-index:1;width:100%;max-width:420px;}
+.splash-logo{
+  font-size:64px;
+  text-align:center;
+  margin-bottom:8px;
+  filter:drop-shadow(0 4px 12px rgba(0,0,0,.2));
+}
+.splash-title{
+  font-size:34px;font-weight:800;text-align:center;
+  margin-bottom:6px;letter-spacing:-0.02em;
+}
+.splash-tagline{
+  text-align:center;color:rgba(255,255,255,.75);
+  margin-bottom:36px;font-size:15px;
+}
+.role-grid{
+  display:grid;gap:12px;
+  margin-bottom:24px;
+}
+.role-btn{
+  display:flex;align-items:center;gap:14px;
+  padding:18px 20px;
+  background:rgba(255,255,255,.08);
+  backdrop-filter:blur(10px);
+  border:1px solid rgba(255,255,255,.15);
+  border-radius:var(--radius-lg);
+  color:#fff;cursor:pointer;
+  transition:all .2s ease;
+  text-align:left;
+}
+.role-btn:hover{
+  background:rgba(255,255,255,.14);
+  border-color:rgba(255,255,255,.3);
+  transform:translateY(-1px);
+}
+.role-emoji{
+  font-size:30px;
+  width:48px;height:48px;
+  display:flex;align-items:center;justify-content:center;
+  background:rgba(255,255,255,.1);
+  border-radius:var(--radius);
+  flex-shrink:0;
+}
+.role-info{flex:1;}
+.role-name{font-weight:700;font-size:16px;}
+.role-desc{font-size:13px;color:rgba(255,255,255,.65);margin-top:2px;}
+.role-arrow{color:rgba(255,255,255,.5);font-size:20px;}
+
+.splash-demo{
+  display:block;width:100%;text-align:center;
+  padding:14px;border-radius:var(--radius);
+  background:transparent;
+  border:1px dashed rgba(255,255,255,.3);
+  color:#fff;font-weight:600;
+  cursor:pointer;transition:all .2s;
+}
+.splash-demo:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.5);}
+.splash-footer{
+  position:absolute;bottom:18px;left:0;right:0;
+  text-align:center;font-size:12px;color:rgba(255,255,255,.4);
+  z-index:1;
+}
+
+/* ============ LOGIN ============ */
+.login{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--bg);
+}
+.login-header{
+  padding:18px 20px;
+  display:flex;align-items:center;gap:12px;
+  border-bottom:1px solid var(--border);
+  background:var(--surface);
+}
+.login-back{
+  width:40px;height:40px;border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  color:var(--text);cursor:pointer;font-size:20px;
+}
+.login-back:hover{background:var(--border-soft);}
+.login-body{
+  flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px;max-width:420px;margin:0 auto;width:100%;
+}
+.login-emoji{font-size:54px;margin-bottom:8px;}
+.login-title{font-size:24px;margin-bottom:6px;text-align:center;}
+.login-sub{color:var(--text-soft);text-align:center;margin-bottom:28px;}
+.pin-display{
+  display:flex;gap:10px;margin-bottom:24px;justify-content:center;
+}
+.pin-dot{
+  width:46px;height:54px;
+  border:2px solid var(--border);
+  border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  font-size:22px;font-weight:700;
+  background:var(--surface);
+  transition:all .15s;
+}
+.pin-dot.filled{border-color:var(--primary);background:var(--primary-light);color:var(--primary);}
+.pin-dot.error{border-color:var(--danger);background:var(--danger-light);animation:shake .3s;}
+@keyframes shake{
+  0%,100%{transform:translateX(0);}
+  25%{transform:translateX(-4px);}
+  75%{transform:translateX(4px);}
+}
+.keypad{
+  display:grid;grid-template-columns:repeat(3,1fr);
+  gap:10px;width:100%;max-width:300px;
+}
+.keypad-btn{
+  height:60px;border-radius:var(--radius);
+  background:var(--surface);border:1px solid var(--border);
+  font-size:22px;font-weight:600;color:var(--text);
+  cursor:pointer;transition:all .12s;
+  -webkit-user-select:none;user-select:none;
+}
+.keypad-btn:active{background:var(--primary-light);border-color:var(--primary);transform:scale(.97);}
+.keypad-btn.alt{background:var(--border-soft);color:var(--text-soft);}
+.login-locked{
+  background:var(--danger-light);color:var(--danger);
+  padding:14px 18px;border-radius:var(--radius);
+  margin-bottom:16px;text-align:center;font-weight:600;font-size:14px;
+}
+
+/* ============ APP LAYOUT ============ */
+.app{
+  min-height:100vh;
+  display:flex;flex-direction:column;
+  background:var(--bg);
+}
+.app-header{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:14px 18px;
+  background:var(--surface);
+  border-bottom:1px solid var(--border);
+  position:sticky;top:0;z-index:50;
+}
+.app-header-left{display:flex;align-items:center;gap:10px;}
+.app-logo{font-size:22px;}
+.app-title{font-size:17px;font-weight:700;}
+.app-role-badge{
+  font-size:11px;font-weight:700;text-transform:uppercase;
+  padding:2px 8px;border-radius:999px;
+  background:var(--primary-light);color:var(--primary);
+}
+.app-header-right{display:flex;align-items:center;gap:8px;}
+.icon-btn{
+  width:40px;height:40px;border-radius:var(--radius);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--text);font-size:18px;
+  background:transparent;
+}
+.icon-btn:hover{background:var(--border-soft);}
+
+.app-body{
+  flex:1;
+  padding:18px;
+  max-width:1100px;margin:0 auto;width:100%;
+}
+
+/* Tabs (desktop sidebar style on wider screens) */
+.tabs{
+  display:flex;gap:4px;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:4px;
+  margin-bottom:18px;
+  overflow-x:auto;
+}
+.tab{
+  padding:10px 16px;border-radius:var(--radius-sm);
+  cursor:pointer;font-weight:600;font-size:14px;color:var(--text-soft);
+  white-space:nowrap;
+  transition:all .15s;
+}
+.tab.active{background:var(--primary);color:#fff;}
+.tab:not(.active):hover{background:var(--border-soft);color:var(--text);}
+
+.section{display:none;}
+.section.active{display:block;}
+
+/* ============ MAP ============ */
+.map-wrap{
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  border:1px solid var(--border);
+  box-shadow:var(--shadow-sm);
+  position:relative;
+  height:360px;
+  margin-bottom:16px;
+}
+#map,#captainMap,#adminMap{height:100%;width:100%;}
+
+.map-overlay{
+  position:absolute;
+  top:10px;left:10px;
+  background:var(--surface);
+  padding:8px 12px;
+  border-radius:var(--radius);
+  font-size:12px;font-weight:600;
+  z-index:400;
+  box-shadow:var(--shadow);
+  display:flex;align-items:center;gap:6px;
+}
+.dot-live{
+  width:8px;height:8px;border-radius:50%;background:var(--success);
+  animation:pulse 1.5s infinite;
+}
+@keyframes pulse{
+  0%,100%{opacity:1;transform:scale(1);}
+  50%{opacity:.4;transform:scale(1.3);}
+}
+
+/* ============ RIDE REQUEST FORM ============ */
+.ride-form{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:18px;
+  box-shadow:var(--shadow);
+  margin-bottom:16px;
+}
+.port-pick{
+  display:flex;align-items:stretch;gap:12px;
+  margin-bottom:14px;
+}
+.port-icons{
+  display:flex;flex-direction:column;align-items:center;
+  padding-top:18px;
+}
+.port-icon-circle{
+  width:10px;height:10px;border-radius:50%;
+  background:var(--primary);
+}
+.port-icon-circle.dest{background:var(--accent);}
+.port-icons-line{
+  flex:1;width:2px;background:var(--border);
+  border-radius:1px;min-height:24px;
+}
+.port-pick-fields{flex:1;display:flex;flex-direction:column;gap:10px;}
+
+.fare-preview{
+  background:var(--primary-light);
+  padding:12px 14px;border-radius:var(--radius);
+  display:flex;justify-content:space-between;align-items:center;
+  margin:14px 0;
+}
+.fare-preview .total{font-size:22px;font-weight:800;color:var(--primary);}
+.fare-preview .label{font-size:13px;color:var(--text-soft);font-weight:600;}
+
+/* ============ RIDE CARDS / LISTS ============ */
+.ride-list{display:flex;flex-direction:column;gap:10px;}
+.ride-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:14px 16px;
+  display:flex;flex-direction:column;gap:10px;
+  cursor:pointer;
+  transition:all .15s;
+}
+.ride-card:hover{border-color:var(--primary);box-shadow:var(--shadow);}
+.ride-card-head{
+  display:flex;justify-content:space-between;align-items:flex-start;gap:10px;
+}
+.ride-route{font-weight:700;font-size:15px;color:var(--text);}
+.ride-route .arrow{color:var(--accent);margin:0 6px;}
+.ride-meta{font-size:12px;color:var(--text-mute);margin-top:2px;}
+.ride-price{font-weight:800;font-size:18px;color:var(--primary);text-align:right;}
+.ride-actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+.empty-state{
+  text-align:center;
+  padding:40px 20px;
+  color:var(--text-mute);
+}
+.empty-emoji{font-size:42px;margin-bottom:8px;display:block;}
+
+/* ============ STATS ============ */
+.stats-grid{
+  display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));
+  gap:12px;margin-bottom:18px;
+}
+.stat-card{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:14px 16px;
+}
+.stat-label{font-size:12px;color:var(--text-mute);font-weight:600;text-transform:uppercase;letter-spacing:.04em;}
+.stat-value{font-size:24px;font-weight:800;color:var(--text);margin-top:4px;}
+.stat-extra{font-size:12px;color:var(--text-soft);margin-top:2px;}
+
+/* ============ CAPTAIN AVAIL TOGGLE ============ */
+.avail-toggle{
+  display:flex;justify-content:space-between;align-items:center;
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  padding:14px 18px;
+  margin-bottom:14px;
+}
+.toggle-switch{
+  position:relative;width:50px;height:28px;
+  background:var(--border);border-radius:999px;
+  cursor:pointer;transition:background .2s;
+  flex-shrink:0;
+}
+.toggle-switch.on{background:var(--success);}
+.toggle-switch::after{
+  content:'';position:absolute;
+  top:3px;left:3px;width:22px;height:22px;
+  background:#fff;border-radius:50%;
+  transition:transform .2s;
+  box-shadow:0 1px 3px rgba(0,0,0,.2);
+}
+.toggle-switch.on::after{transform:translateX(22px);}
+
+/* ============ TABLE (admin) ============ */
+.table-wrap{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-radius:var(--radius-lg);
+  overflow:hidden;
+  margin-bottom:16px;
+}
+.table{width:100%;border-collapse:collapse;font-size:13px;}
+.table th{
+  background:var(--border-soft);
+  text-align:left;
+  padding:10px 12px;
+  font-weight:700;
+  font-size:11px;color:var(--text-soft);
+  text-transform:uppercase;letter-spacing:.04em;
+  border-bottom:1px solid var(--border);
+  white-space:nowrap;
+}
+.table td{
+  padding:10px 12px;
+  border-bottom:1px solid var(--border-soft);
+  vertical-align:middle;
+}
+.table tr:last-child td{border-bottom:none;}
+.table tr:hover td{background:var(--border-soft);}
+.table-scroll{overflow-x:auto;}
+
+/* ============ MODAL ============ */
+.modal-backdrop{
+  position:fixed;inset:0;
+  background:rgba(13,42,43,.5);
+  backdrop-filter:blur(4px);
+  z-index:1000;
+  display:none;
+  align-items:center;justify-content:center;
+  padding:18px;
+}
+.modal-backdrop.active{display:flex;}
+.modal{
+  background:var(--surface);
+  border-radius:var(--radius-xl);
+  max-width:500px;width:100%;
+  max-height:90vh;overflow-y:auto;
+  box-shadow:var(--shadow-lg);
+  animation:modalIn .2s ease;
+}
+@keyframes modalIn{
+  from{opacity:0;transform:scale(.96) translateY(8px);}
+  to{opacity:1;transform:scale(1) translateY(0);}
+}
+.modal-head{
+  padding:18px 22px;
+  border-bottom:1px solid var(--border);
+  display:flex;justify-content:space-between;align-items:center;
+}
+.modal-title{font-size:17px;font-weight:700;}
+.modal-close{
+  width:32px;height:32px;border-radius:var(--radius);
+  cursor:pointer;display:flex;align-items:center;justify-content:center;
+  color:var(--text-soft);font-size:20px;
+}
+.modal-close:hover{background:var(--border-soft);color:var(--text);}
+.modal-body{padding:22px;}
+.modal-foot{
+  padding:14px 22px;border-top:1px solid var(--border);
+  display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap;
+}
+
+/* ============ TOAST ============ */
+.toast-wrap{
+  position:fixed;top:18px;left:50%;transform:translateX(-50%);
+  z-index:2000;
+  display:flex;flex-direction:column;gap:8px;
+  pointer-events:none;
+  max-width:90vw;
+}
+.toast{
+  background:var(--surface);
+  border:1px solid var(--border);
+  border-left:4px solid var(--primary);
+  border-radius:var(--radius);
+  padding:12px 16px;
+  box-shadow:var(--shadow-lg);
+  display:flex;align-items:center;gap:10px;
+  font-weight:600;font-size:14px;
+  min-width:240px;
+  animation:toastIn .25s ease;
+  pointer-events:auto;
+}
+.toast.success{border-left-color:var(--success);}
+.toast.error{border-left-color:var(--danger);}
+.toast.warning{border-left-color:var(--warning);}
+.toast.info{border-left-color:var(--info);}
+.toast-emoji{font-size:18px;}
+@keyframes toastIn{
+  from{opacity:0;transform:translateY(-12px);}
+  to{opacity:1;transform:translateY(0);}
+}
+
+/* ============ LOADER ============ */
+.loader-overlay{
+  position:fixed;inset:0;
+  background:rgba(255,255,255,.7);
+  backdrop-filter:blur(2px);
+  z-index:3000;
+  display:none;
+  align-items:center;justify-content:center;
+}
+.loader-overlay.active{display:flex;}
+.spinner{
+  width:42px;height:42px;
+  border:4px solid var(--border);
+  border-top-color:var(--primary);
+  border-radius:50%;
+  animation:spin .8s linear infinite;
+}
+@keyframes spin{to{transform:rotate(360deg);}}
+
+/* ============ DEMO BADGE ============ */
+.demo-badge{
+  position:fixed;top:8px;right:8px;z-index:100;
+  background:var(--accent);color:#fff;
+  padding:4px 10px;border-radius:999px;
+  font-size:11px;font-weight:800;
+  text-transform:uppercase;letter-spacing:.05em;
+  box-shadow:var(--shadow);
+  display:none;
+  align-items:center;gap:4px;
+  pointer-events:none;
+}
+.demo-badge.active{display:inline-flex;}
+
+/* ============ RIDE STATUS LIVE ============ */
+.live-ride{
+  background:linear-gradient(135deg,#0d6b6e,#08474a);
+  color:#fff;
+  border-radius:var(--radius-lg);
+  padding:18px;margin-bottom:14px;
+  box-shadow:var(--shadow);
+}
+.live-ride h4{color:#fff;margin-bottom:8px;display:flex;align-items:center;gap:8px;}
+.live-ride .live-dot{
+  width:8px;height:8px;border-radius:50%;background:var(--accent);
+  animation:pulse 1.5s infinite;
+}
+.live-ride-info{font-size:13px;color:rgba(255,255,255,.85);}
+.live-ride-actions{display:flex;gap:8px;margin-top:12px;flex-wrap:wrap;}
+.live-ride .btn-secondary{background:rgba(255,255,255,.15);color:#fff;border-color:rgba(255,255,255,.2);}
+.live-ride .btn-secondary:hover{background:rgba(255,255,255,.25);}
+
+/* ============ CAPTAIN LIST ============ */
+.captain-item{
+  display:flex;align-items:center;gap:12px;
+  padding:12px;
+  border:1px solid var(--border);
+  border-radius:var(--radius);
+  cursor:pointer;
+  transition:all .15s;
+  background:var(--surface);
+}
+.captain-item:hover{border-color:var(--primary);}
+.captain-avatar{
+  width:42px;height:42px;border-radius:50%;
+  background:var(--primary-light);color:var(--primary);
+  display:flex;align-items:center;justify-content:center;
+  font-weight:700;font-size:15px;flex-shrink:0;
+}
+.captain-info{flex:1;min-width:0;}
+.captain-name{font-weight:700;font-size:14px;}
+.captain-detail{font-size:12px;color:var(--text-mute);margin-top:2px;}
+
+/* ============ RESPONSIVE ============ */
+@media (min-width:768px){
+  .app-body{padding:24px;}
+  .map-wrap{height:440px;}
+  .ride-form{padding:22px;}
+  h1{font-size:28px;}
+  .splash-title{font-size:40px;}
+}
+@media (max-width:380px){
+  .app-header{padding:12px 14px;}
+  .app-title{font-size:15px;}
+  .app-role-badge{display:none;}
+  .stat-value{font-size:20px;}
+}
+
+/* hide default class */
+.hidden{display:none !important;}
+
+/* ============ LEAFLET CUSTOM MARKERS ============ */
+.boat-marker{
+  width:38px;height:38px;
+  background:var(--primary);
+  border:3px solid #fff;
+  border-radius:50%;
+  display:flex;align-items:center;justify-content:center;
+  font-size:18px;
+  box-shadow:0 3px 10px rgba(0,0,0,.25);
+}
+.boat-marker.passenger{background:var(--accent);}
+.port-marker{
+  background:var(--surface);
+  border:2px solid var(--primary);
+  padding:4px 8px;
+  border-radius:var(--radius-sm);
+  font-size:11px;font-weight:700;color:var(--primary);
+  white-space:nowrap;
+  box-shadow:var(--shadow-sm);
+}
+</style>
+</head>
+<body>
+
+<!-- ===================== SPLASH ===================== -->
+<section id="splashView" class="splash">
+  <div class="splash-content">
+    <div class="splash-logo">🛥️</div>
+    <h1 class="splash-title">TaxiBato</h1>
+    <p class="splash-tagline">Transport maritime à la demande — Baie de Fort-de-France</p>
+    <div class="role-grid">
+      <button class="role-btn" data-role="passenger">
+        <div class="role-emoji">🧳</div>
+        <div class="role-info">
+          <div class="role-name">Passager</div>
+          <div class="role-desc">Réserver une traversée</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+      <button class="role-btn" data-role="captain">
+        <div class="role-emoji">⚓</div>
+        <div class="role-info">
+          <div class="role-name">Capitaine</div>
+          <div class="role-desc">Prendre des courses</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+      <button class="role-btn" data-role="admin">
+        <div class="role-emoji">📊</div>
+        <div class="role-info">
+          <div class="role-name">Administrateur</div>
+          <div class="role-desc">Gérer la flotte et les commissions</div>
+        </div>
+        <div class="role-arrow">→</div>
+      </button>
+    </div>
+    <button class="splash-demo" id="btnDemo">🎭 Mode démonstration — Tester sans compte</button>
+  </div>
+  <div class="splash-footer">v0.1 — 2026 • TaxiBato Martinique</div>
+</section>
+
+<!-- ===================== LOGIN ===================== -->
+<section id="loginView" class="login hidden">
+  <header class="login-header">
+    <button class="login-back" id="loginBack">←</button>
+    <div>
+      <div style="font-weight:700;font-size:15px;" id="loginRoleTitle">Connexion</div>
+      <div style="font-size:12px;color:var(--text-mute);">Saisissez votre code PIN</div>
+    </div>
+  </header>
+  <div class="login-body">
+    <div class="login-emoji" id="loginEmoji">🔐</div>
+    <h2 class="login-title" id="loginTitle">Connexion sécurisée</h2>
+    <p class="login-sub" id="loginSub">PIN à 6 caractères (chiffres + #)</p>
+    <div id="loginLocked" class="login-locked hidden"></div>
+    <div class="pin-display" id="pinDisplay"></div>
+    <div class="keypad" id="keypad"></div>
+  </div>
+</section>
+
+<!-- ===================== PASSENGER APP ===================== -->
+<section id="passengerApp" class="app hidden">
+  <header class="app-header">
+    <div class="app-header-left">
+      <span class="app-logo">🛥️</span>
+      <span class="app-title">TaxiBato</span>
+      <span class="app-role-badge">Passager</span>
+    </div>
+    <div class="app-header-right">
+      <button class="icon-btn" id="paxRefreshBtn" title="Synchroniser">🔄</button>
+      <button class="icon-btn" id="paxProfileBtn" title="Profil">👤</button>
+      <button class="icon-btn" id="paxLogoutBtn" title="Déconnexion">⎋</button>
+    </div>
+  </header>
+  <div class="app-body">
+    <div class="tabs">
+      <div class="tab active" data-paxtab="book">📍 Réserver</div>
+      <div class="tab" data-paxtab="rides">🧾 Mes courses</div>
+    </div>
+
+    <!-- BOOK -->
+    <div class="section active" data-paxsection="book">
+      <div id="liveRideBox"></div>
+      <div class="ride-form">
+        <h3 style="margin-bottom:14px;">Nouvelle traversée</h3>
+        <div class="port-pick">
+          <div class="port-icons">
+            <span class="port-icon-circle"></span>
+            <div class="port-icons-line"></div>
+            <span class="port-icon-circle dest"></span>
+          </div>
+          <div class="port-pick-fields">
+            <select class="select" id="fromPort"></select>
+            <select class="select" id="toPort"></select>
+          </div>
+        </div>
+        <div class="field">
+          <label class="label">Nombre de passagers</label>
+          <select class="select" id="paxCount">
+            <option value="1">1 personne</option>
+            <option value="2">2 personnes</option>
+            <option value="3">3 personnes</option>
+            <option value="4">4 personnes</option>
+            <option value="6">5 à 6 personnes</option>
+          </select>
+        </div>
+        <div class="field">
+          <label class="label">Note pour le capitaine (optionnel)</label>
+          <input class="input" id="paxNote" placeholder="Bagages volumineux, enfants…">
+        </div>
+        <div class="fare-preview" id="farePreview">
+          <span class="label">Prix de la traversée</span>
+          <span class="total" id="fareTotal">—</span>
+        </div>
+        <button class="btn btn-primary btn-block btn-lg" id="btnRequestRide">🚤 Demander un capitaine</button>
+      </div>
+      <div class="map-wrap">
+        <div class="map-overlay"><span class="dot-live"></span> Baie de Fort-de-France</div>
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <!-- RIDES -->
+    <div class="section" data-paxsection="rides">
+      <h3 class="mb-3">Historique des courses</h3>
+      <div class="ride-list" id="paxRidesList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== CAPTAIN APP ===================== -->
+<section id="captainApp" class="app hidden">
+  <header class="app-header">
+    <div class="app-header-left">
+      <span class="app-logo">⚓</span>
+      <span class="app-title">TaxiBato</span>
+      <span class="app-role-badge">Capitaine</span>
+    </div>
+    <div class="app-header-right">
+      <button class="icon-btn" id="capRefreshBtn" title="Synchroniser">🔄</button>
+      <button class="icon-btn" id="capProfileBtn" title="Profil">👤</button>
+      <button class="icon-btn" id="capLogoutBtn" title="Déconnexion">⎋</button>
+    </div>
+  </header>
+  <div class="app-body">
+    <div class="avail-toggle">
+      <div>
+        <div style="font-weight:700;font-size:15px;" id="capAvailLabel">Statut : Hors-ligne</div>
+        <div style="font-size:13px;color:var(--text-soft);" id="capBoatLabel">—</div>
+      </div>
+      <div class="toggle-switch" id="capAvailSwitch"></div>
+    </div>
+
+    <div class="tabs">
+      <div class="tab active" data-captab="dashboard">🏠 Tableau de bord</div>
+      <div class="tab" data-captab="requests">📨 Demandes</div>
+      <div class="tab" data-captab="history">🧾 Historique</div>
+    </div>
+
+    <div class="section active" data-capsection="dashboard">
+      <div id="capLiveRideBox"></div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="stat-label">Aujourd'hui</div>
+          <div class="stat-value" id="capStatToday">—</div>
+          <div class="stat-extra">€ encaissés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Cette semaine</div>
+          <div class="stat-value" id="capStatWeek">—</div>
+          <div class="stat-extra">€ encaissés</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">Total</div>
+          <div class="stat-value" id="capStatAll">—</div>
+          <div class="stat-extra">courses effectuées</div>
+        </div>
+      </div>
+      <div class="map-wrap">
+        <div class="map-overlay"><span class="dot-live"></span> <span id="capGpsStatus">Position</span></div>
+        <div id="captainMap"></div>
+      </div>
+    </div>
+
+    <div class="section" data-capsection="requests">
+      <h3 class="mb-3">Demandes en attente</h3>
+      <div class="ride-list" id="capRequestsList"></div>
+    </div>
+
+    <div class="section" data-capsection="history">
+      <h3 class="mb-3">Mes courses terminées</h3>
+      <div class="ride-list" id="capHistoryList"></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== ADMIN APP ===================== -->
+<section id="adminApp" class="app hidden">
+  <header class="app-header">
+    <div class="app-header-left">
+      <span class="app-logo">📊</span>
+      <span class="app-title">TaxiBato</span>
+      <span class="app-role-badge">Admin</span>
+    </div>
+    <div class="app-header-right">
+      <button class="icon-btn" id="adminRefreshBtn" title="Synchroniser">🔄</button>
+      <button class="icon-btn" id="adminLogoutBtn" title="Déconnexion">⎋</button>
+    </div>
+  </header>
+  <div class="app-body">
+    <div class="tabs">
+      <div class="tab active" data-admtab="dashboard">📈 Tableau de bord</div>
+      <div class="tab" data-admtab="rides">🛥️ Courses</div>
+      <div class="tab" data-admtab="captains">⚓ Capitaines</div>
+      <div class="tab" data-admtab="passengers">🧳 Passagers</div>
+      <div class="tab" data-admtab="audit">📋 Audit</div>
+    </div>
+
+    <div class="section active" data-admsection="dashboard">
+      <div class="stats-grid">
+        <div class="stat-card"><div class="stat-label">Recette totale</div><div class="stat-value" id="admStatRevenue">—</div><div class="stat-extra">€ encaissés (toutes courses)</div></div>
+        <div class="stat-card"><div class="stat-label">Commission TaxiBato</div><div class="stat-value" id="admStatCommission">—</div><div class="stat-extra">€ (10% de la recette)</div></div>
+        <div class="stat-card"><div class="stat-label">Courses terminées</div><div class="stat-value" id="admStatRides">—</div></div>
+        <div class="stat-card"><div class="stat-label">En cours</div><div class="stat-value" id="admStatActive">—</div></div>
+        <div class="stat-card"><div class="stat-label">Capitaines actifs</div><div class="stat-value" id="admStatCaptains">—</div></div>
+        <div class="stat-card"><div class="stat-label">Passagers inscrits</div><div class="stat-value" id="admStatPax">—</div></div>
+      </div>
+      <div class="map-wrap">
+        <div class="map-overlay"><span class="dot-live"></span> Position des bateaux en service</div>
+        <div id="adminMap"></div>
+      </div>
+    </div>
+
+    <div class="section" data-admsection="rides">
+      <h3 class="mb-3">Toutes les courses</h3>
+      <div class="table-wrap"><div class="table-scroll"><table class="table" id="admRidesTable"></table></div></div>
+    </div>
+
+    <div class="section" data-admsection="captains">
+      <div class="flex justify-between items-center mb-3">
+        <h3>Capitaines</h3>
+        <button class="btn btn-primary btn-sm" id="btnAddCaptain">+ Ajouter</button>
+      </div>
+      <div class="table-wrap"><div class="table-scroll"><table class="table" id="admCaptainsTable"></table></div></div>
+    </div>
+
+    <div class="section" data-admsection="passengers">
+      <div class="flex justify-between items-center mb-3">
+        <h3>Passagers</h3>
+        <button class="btn btn-primary btn-sm" id="btnAddPax">+ Ajouter</button>
+      </div>
+      <div class="table-wrap"><div class="table-scroll"><table class="table" id="admPaxTable"></table></div></div>
+    </div>
+
+    <div class="section" data-admsection="audit">
+      <h3 class="mb-3">Journal d'audit</h3>
+      <div class="table-wrap"><div class="table-scroll"><table class="table" id="admAuditTable"></table></div></div>
+    </div>
+  </div>
+</section>
+
+<!-- ===================== MODAL ===================== -->
+<div class="modal-backdrop" id="modal">
+  <div class="modal">
+    <div class="modal-head">
+      <div class="modal-title" id="modalTitle">Titre</div>
+      <div class="modal-close" id="modalClose">×</div>
+    </div>
+    <div class="modal-body" id="modalBody"></div>
+    <div class="modal-foot" id="modalFoot"></div>
+  </div>
+</div>
+
+<!-- ===================== DEMO BADGE ===================== -->
+<div class="demo-badge" id="demoBadge">🎭 Mode démo</div>
+
+<!-- ===================== TOAST ===================== -->
+<div class="toast-wrap" id="toastWrap"></div>
+
+<!-- ===================== LOADER ===================== -->
+<div class="loader-overlay" id="loader"><div class="spinner"></div></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.min.js"></script>
+<script>
+'use strict';
+
+/* =================================================================
+   TaxiBato v0.1 — Transport maritime à la demande Martinique
+   ================================================================= */
+const APP_VERSION = 'v0.1';
+const APP_NAME = 'TaxiBato';
+
+/* ───────── CONFIG BACKEND ──────────
+   Remplace BACKEND_URL par l'URL Web App de ton Apps Script
+   (Déploiement > Nouveau déploiement > Application Web).
+   Laisse vide ('') pour mode 100% local (localStorage uniquement).
+*/
+const BACKEND_URL = '';
+const COMMISSION_RATE = 0.10;
+const POLL_INTERVAL = 8000; // ms
+const GEO_UPDATE_INTERVAL = 10000;
+
+/* ───────── PORTS DE LA BAIE ───────── */
+const PORTS = [
+  { id:'fdf', name:'Fort-de-France', lat:14.6034, lng:-61.0734 },
+  { id:'sch', name:'Schoelcher',     lat:14.6125, lng:-61.1056 },
+  { id:'cp',  name:'Case-Pilote',    lat:14.6892, lng:-61.1228 },
+  { id:'ti',  name:'Trois-Îlets',    lat:14.5347, lng:-61.0344 },
+  { id:'aa',  name:"Anse à l'Âne",   lat:14.5547, lng:-61.0578 }
+];
+const PORT_BY_ID = Object.fromEntries(PORTS.map(p=>[p.id,p]));
+
+/* Tarifs aller-simple en € (basés sur distance & route) */
+const FARES = {
+  'fdf-sch':15,'sch-fdf':15,
+  'fdf-cp':25, 'cp-fdf':25,
+  'fdf-ti':18, 'ti-fdf':18,
+  'fdf-aa':20, 'aa-fdf':20,
+  'sch-cp':15, 'cp-sch':15,
+  'sch-ti':22, 'ti-sch':22,
+  'sch-aa':25, 'aa-sch':25,
+  'cp-ti':30,  'ti-cp':30,
+  'cp-aa':30,  'aa-cp':30,
+  'ti-aa':8,   'aa-ti':8
+};
+function getFare(fromId, toId){
+  if(fromId===toId) return 0;
+  return FARES[fromId+'-'+toId] || 20;
+}
+function getDistanceKm(a, b){
+  const R=6371,toRad=x=>x*Math.PI/180;
+  const dLat=toRad(b.lat-a.lat),dLng=toRad(b.lng-a.lng);
+  const h=Math.sin(dLat/2)**2+Math.cos(toRad(a.lat))*Math.cos(toRad(b.lat))*Math.sin(dLng/2)**2;
+  return 2*R*Math.asin(Math.sqrt(h));
+}
+
+/* ───────── ÉTAT GLOBAL ───────── */
+const state = {
+  mode: 'real',                // 'real' | 'demo'
+  view: 'splash',              // 'splash'|'login'|'passenger'|'captain'|'admin'
+  loginRole: null,             // 'passenger'|'captain'|'admin'
+  currentUser: null,
+  pinBuffer: '',
+  attempts: 0,
+  lockedUntil: 0,
+  data: {
+    users: [],
+    rides: [],
+    audit: []
+  },
+  map: null,
+  capMap: null,
+  admMap: null,
+  mapMarkers: {},
+  capMapMarkers: {},
+  admMapMarkers: {},
+  liveRideId: null,
+  pollTimer: null,
+  geoWatchId: null,
+  captainAvailable: false,
+  captainPos: null
+};
+
+/* ───────── STORAGE LOCAL ───────── */
+const LS = {
+  get:(k,d=null)=>{ try{const v=localStorage.getItem('taxibato.'+k);return v?JSON.parse(v):d;}catch{return d;} },
+  set:(k,v)=>{ try{localStorage.setItem('taxibato.'+k,JSON.stringify(v));}catch{} },
+  del:(k)=>{ try{localStorage.removeItem('taxibato.'+k);}catch{} }
+};
+
+/* ───────── LOG ───────── */
+const log = (...a)=>console.log('[TaxiBato]',...a);
+
+/* ───────── TOAST ───────── */
+function toast(msg, type='info', emoji=null){
+  const wrap = document.getElementById('toastWrap');
+  const el = document.createElement('div');
+  const emojis = {success:'✅',error:'❌',warning:'⚠️',info:'ℹ️'};
+  el.className = 'toast '+type;
+  el.innerHTML = `<span class="toast-emoji">${emoji||emojis[type]||''}</span><span>${msg}</span>`;
+  wrap.appendChild(el);
+  setTimeout(()=>{ el.style.opacity='0';el.style.transition='opacity .25s';setTimeout(()=>el.remove(),250); }, 3500);
+}
+
+/* ───────── LOADER ───────── */
+function showLoader(show=true){
+  document.getElementById('loader').classList.toggle('active', show);
+}
+
+/* ───────── MODAL ───────── */
+function openModal(title, bodyHtml, footHtml=''){
+  document.getElementById('modalTitle').textContent = title;
+  document.getElementById('modalBody').innerHTML = bodyHtml;
+  document.getElementById('modalFoot').innerHTML = footHtml;
+  document.getElementById('modal').classList.add('active');
+}
+function closeModal(){ document.getElementById('modal').classList.remove('active'); }
+document.getElementById('modalClose').addEventListener('click', closeModal);
+document.getElementById('modal').addEventListener('click', e=>{
+  if(e.target.id==='modal') closeModal();
+});
+
+/* ───────── BACKEND (Apps Script) ─────────
+   Tout passe par fetch POST. Le backend dispatche selon body.action.
+   En mode démo, aucune écriture distante : retour stub immédiat. */
+async function api(action, payload={}){
+  if(state.mode === 'demo'){
+    log('DEMO: bypass api', action, payload);
+    return { success:true, demo:true };
+  }
+  if(!BACKEND_URL){
+    log('Mode local (pas de BACKEND_URL)', action);
+    return { success:true, local:true };
+  }
+  let attempt = 0;
+  const delays = [300, 800, 2000];
+  while(attempt < 3){
+    try{
+      const resp = await fetch(BACKEND_URL, {
+        method:'POST',
+        body: JSON.stringify({ action, data:payload }),
+        redirect:'follow'
+      });
+      const json = await resp.json();
+      return json;
+    }catch(err){
+      log('api err attempt '+attempt, err);
+      attempt++;
+      if(attempt < 3) await new Promise(r=>setTimeout(r, delays[attempt-1]));
+    }
+  }
+  return { success:false, error:'network' };
+}
+
+/* ───────── DONNÉES DEMO ───────── */
+function buildDemoData(){
+  const now = Date.now();
+  const users = [
+    { id:'adm-demo', role:'admin', name:'Olivier (démo)', phone:'0696000000', pin:'1290#5', boat:'', active:true },
+    { id:'cap1', role:'captain', name:'Jean-Marc Belrose', phone:'0696112233', pin:'112233', boat:'Madinina Express — 8 places', port:'fdf', active:true },
+    { id:'cap2', role:'captain', name:'Mickaël Sainte-Rose', phone:'0696445566', pin:'445566', boat:'Karukera II — 6 places', port:'ti', active:true },
+    { id:'cap3', role:'captain', name:'Patricia Édouard',  phone:'0696778899', pin:'778899', boat:'Bel’Eau — 10 places', port:'sch', active:true },
+    { id:'cap4', role:'captain', name:'Yannick Larcher',  phone:'0696334455', pin:'334455', boat:'Yole Tigre — 6 places', port:'aa', active:true },
+    { id:'pax1', role:'passenger', name:'Sophie Dumas',    phone:'0696223344', pin:'223344', active:true },
+    { id:'pax2', role:'passenger', name:'Marc Lacombe',    phone:'0696556677', pin:'556677', active:true },
+    { id:'pax3', role:'passenger', name:'Émilie Roy',      phone:'0696889900', pin:'889900', active:true },
+    { id:'pax4', role:'passenger', name:'Thierry Bertrand',phone:'0696990011', pin:'990011', active:true }
+  ];
+  const rides = [
+    mkRide({passengerId:'pax1',captainId:'cap1',from:'fdf',to:'ti',status:'completed',ago:1*86400000+3600000,paxCount:2}),
+    mkRide({passengerId:'pax2',captainId:'cap2',from:'ti',to:'fdf',status:'completed',ago:1*86400000+1800000,paxCount:3}),
+    mkRide({passengerId:'pax3',captainId:'cap3',from:'sch',to:'aa',status:'completed',ago:2*86400000,paxCount:1}),
+    mkRide({passengerId:'pax4',captainId:'cap4',from:'aa',to:'ti',status:'completed',ago:2*86400000+7200000,paxCount:4}),
+    mkRide({passengerId:'pax1',captainId:'cap1',from:'fdf',to:'sch',status:'completed',ago:3*86400000,paxCount:2}),
+    mkRide({passengerId:'pax2',captainId:'cap3',from:'sch',to:'fdf',status:'completed',ago:3*86400000+3600000,paxCount:1}),
+    mkRide({passengerId:'pax3',captainId:'cap2',from:'ti',to:'aa',status:'completed',ago:4*86400000,paxCount:6}),
+    mkRide({passengerId:'pax4',captainId:'cap1',from:'fdf',to:'cp',status:'completed',ago:5*86400000,paxCount:2}),
+    mkRide({passengerId:'pax1',captainId:'cap4',from:'aa',to:'fdf',status:'completed',ago:6*86400000,paxCount:3}),
+    mkRide({passengerId:'pax2',captainId:'cap1',from:'fdf',to:'ti',status:'completed',ago:7*86400000,paxCount:5}),
+    mkRide({passengerId:'pax3',captainId:'cap2',from:'ti',to:'sch',status:'cancelled',ago:8*86400000,paxCount:1}),
+    mkRide({passengerId:'pax4',captainId:'cap3',from:'sch',to:'fdf',status:'completed',ago:9*86400000,paxCount:2}),
+    mkRide({passengerId:'pax1',captainId:'cap1',from:'fdf',to:'sch',status:'in_progress',ago:600000,paxCount:2}),
+    mkRide({passengerId:'pax2',captainId:null,from:'ti',to:'fdf',status:'pending',ago:120000,paxCount:3})
+  ];
+  const audit = [
+    { id:'a1', timestamp:now-86400000, userId:'adm-demo', action:'admin_login', detail:'Connexion administrateur' },
+    { id:'a2', timestamp:now-3600000, userId:'cap1', action:'captain_online', detail:'Mise en service' },
+    { id:'a3', timestamp:now-1800000, userId:'pax1', action:'ride_requested', detail:'FDF → Trois-Îlets' }
+  ];
+  state.data.users = users;
+  state.data.rides = rides;
+  state.data.audit = audit;
+}
+function mkRide({passengerId,captainId,from,to,status,ago,paxCount}){
+  const fare = getFare(from, to);
+  const commission = +(fare * COMMISSION_RATE).toFixed(2);
+  const captainEarning = +(fare - commission).toFixed(2);
+  const ts = Date.now() - ago;
+  const dist = +(getDistanceKm(PORT_BY_ID[from], PORT_BY_ID[to])).toFixed(2);
+  return {
+    id: 'r-'+Math.random().toString(36).slice(2,9),
+    createdAt: ts,
+    startedAt: status==='in_progress'?ts:(status==='completed'?ts:null),
+    completedAt: status==='completed'?ts+1800000:null,
+    passengerId, captainId, from, to, status,
+    paxCount: paxCount||1,
+    price: fare,
+    commission,
+    captainEarning,
+    distance: dist,
+    note: ''
+  };
+}
+
+/* ───────── UTIL USER / RIDE LOOKUP ───────── */
+function userById(id){ return state.data.users.find(u=>u.id===id); }
+function ridesForUser(userId, role){
+  if(role==='passenger') return state.data.rides.filter(r=>r.passengerId===userId);
+  if(role==='captain')   return state.data.rides.filter(r=>r.captainId===userId);
+  return state.data.rides;
+}
+
+/* ───────── PIN HELPERS ───────── */
+const WEAK_PINS = ['123456','000000','111111','222222','333333','444444','555555','666666','777777','888888','999999','121212','123123','654321','112233','445566','778899'];
+function isWeakPin(pin){
+  if(pin.length<6) return true;
+  if(WEAK_PINS.includes(pin)) return true;
+  if(/^(.)\1+$/.test(pin)) return true;
+  return false;
+}
+
+/* ───────── VIEW ROUTING ───────── */
+function showView(view){
+  ['splashView','loginView','passengerApp','captainApp','adminApp'].forEach(id=>{
+    document.getElementById(id).classList.add('hidden');
+  });
+  const map = { splash:'splashView', login:'loginView', passenger:'passengerApp', captain:'captainApp', admin:'adminApp' };
+  document.getElementById(map[view]).classList.remove('hidden');
+  state.view = view;
+  document.getElementById('demoBadge').classList.toggle('active', state.mode==='demo');
+}
+
+/* ===================================================================
+   SPLASH HANDLERS
+   =================================================================== */
+document.querySelectorAll('.role-btn').forEach(btn=>{
+  btn.addEventListener('click', ()=> initLogin(btn.dataset.role));
+});
+document.getElementById('btnDemo').addEventListener('click', activateDemo);
+
+/* ===================================================================
+   LOGIN
+   =================================================================== */
+function initLogin(role){
+  state.loginRole = role;
+  state.pinBuffer = '';
+  const titles = { passenger:'Espace Passager', captain:'Espace Capitaine', admin:'Espace Administrateur' };
+  const emojis = { passenger:'🧳', captain:'⚓', admin:'📊' };
+  document.getElementById('loginRoleTitle').textContent = titles[role];
+  document.getElementById('loginTitle').textContent = titles[role];
+  document.getElementById('loginEmoji').textContent = emojis[role];
+  document.getElementById('loginSub').textContent = 'PIN à 6 caractères (chiffres + #)';
+  renderPinDisplay();
+  renderKeypad();
+  checkLockState();
+  showView('login');
+}
+document.getElementById('loginBack').addEventListener('click', ()=> showView('splash'));
+
+function renderPinDisplay(){
+  const el = document.getElementById('pinDisplay');
+  el.innerHTML = '';
+  for(let i=0;i<6;i++){
+    const d = document.createElement('div');
+    d.className = 'pin-dot' + (state.pinBuffer[i]?' filled':'');
+    d.textContent = state.pinBuffer[i] || '';
+    el.appendChild(d);
+  }
+}
+function renderKeypad(){
+  const keys = ['1','2','3','4','5','6','7','8','9','#','0','⌫'];
+  const el = document.getElementById('keypad');
+  el.innerHTML = '';
+  keys.forEach(k=>{
+    const btn = document.createElement('button');
+    btn.className = 'keypad-btn' + (k==='#'||k==='⌫'?' alt':'');
+    btn.textContent = k;
+    btn.addEventListener('click', ()=> onKey(k));
+    el.appendChild(btn);
+  });
+}
+function onKey(k){
+  if(state.lockedUntil > Date.now()) return;
+  if(k==='⌫'){ state.pinBuffer = state.pinBuffer.slice(0,-1); renderPinDisplay(); return; }
+  if(state.pinBuffer.length>=6) return;
+  state.pinBuffer += k;
+  renderPinDisplay();
+  if(state.pinBuffer.length===6) verifyPin();
+}
+function verifyPin(){
+  const attempt = state.pinBuffer;
+  const role = state.loginRole;
+  const user = state.data.users.find(u=>u.role===role && u.pin===attempt && u.active!==false);
+  if(user){
+    state.currentUser = user;
+    LS.set('user', { id:user.id, role:user.role });
+    state.attempts = 0;
+    LS.set('attempts',0);
+    LS.set('lockedUntil',0);
+    addAudit(user.id, role+'_login', 'Connexion réussie');
+    api('audit', { userId:user.id, action:role+'_login', detail:'Connexion' });
+    enterApp(role);
+  } else {
+    state.attempts++;
+    LS.set('attempts', state.attempts);
+    addAudit(null, role+'_login_fail', 'Tentative échouée ('+attempt+')');
+    let lockMs = 0;
+    if(state.attempts>=15) lockMs = 24*3600*1000;
+    else if(state.attempts>=10) lockMs = 3600*1000;
+    else if(state.attempts>=5) lockMs = 5*60*1000;
+    if(lockMs){
+      state.lockedUntil = Date.now()+lockMs;
+      LS.set('lockedUntil', state.lockedUntil);
+    }
+    const dots = document.querySelectorAll('.pin-dot');
+    dots.forEach(d=>d.classList.add('error'));
+    setTimeout(()=>{ state.pinBuffer=''; renderPinDisplay(); checkLockState(); }, 400);
+    toast('PIN incorrect', 'error');
+  }
+}
+function checkLockState(){
+  const lockedUntil = LS.get('lockedUntil',0);
+  if(lockedUntil) state.lockedUntil = lockedUntil;
+  const remaining = state.lockedUntil - Date.now();
+  const box = document.getElementById('loginLocked');
+  if(remaining > 0){
+    const min = Math.ceil(remaining/60000);
+    box.textContent = '🔒 Compte verrouillé. Réessayez dans '+(min>=60?Math.ceil(min/60)+' h':min+' min')+'.';
+    box.classList.remove('hidden');
+  } else {
+    box.classList.add('hidden');
+  }
+}
+
+/* ===================================================================
+   DEMO MODE
+   =================================================================== */
+function activateDemo(){
+  state.mode = 'demo';
+  buildDemoData();
+  // Connexion auto en admin pour montrer toutes les vues, puis splash de choix
+  state.currentUser = state.data.users.find(u=>u.role==='admin');
+  showDemoEntryChooser();
+}
+function showDemoEntryChooser(){
+  openModal(
+    '🎭 Mode démonstration',
+    `<p style="margin-bottom:14px;color:var(--text-soft);">Données fictives chargées. Choisis quel rôle tu veux explorer :</p>
+     <div class="role-grid" style="margin-bottom:0;">
+       <button class="role-btn" style="background:var(--primary-light);color:var(--text);border-color:var(--border);" onclick="enterDemoRole('passenger')">
+         <div class="role-emoji" style="background:#fff;">🧳</div>
+         <div class="role-info"><div class="role-name">Passager</div><div class="role-desc" style="color:var(--text-mute);">Sophie Dumas — réserver une course</div></div>
+         <div class="role-arrow">→</div>
+       </button>
+       <button class="role-btn" style="background:var(--primary-light);color:var(--text);border-color:var(--border);" onclick="enterDemoRole('captain')">
+         <div class="role-emoji" style="background:#fff;">⚓</div>
+         <div class="role-info"><div class="role-name">Capitaine</div><div class="role-desc" style="color:var(--text-mute);">Jean-Marc Belrose — Madinina Express</div></div>
+         <div class="role-arrow">→</div>
+       </button>
+       <button class="role-btn" style="background:var(--primary-light);color:var(--text);border-color:var(--border);" onclick="enterDemoRole('admin')">
+         <div class="role-emoji" style="background:#fff;">📊</div>
+         <div class="role-info"><div class="role-name">Admin</div><div class="role-desc" style="color:var(--text-mute);">Vue d'ensemble flotte + commissions</div></div>
+         <div class="role-arrow">→</div>
+       </button>
+     </div>`,
+    `<button class="btn btn-ghost" onclick="closeModal();showView('splash');">Retour</button>`
+  );
+}
+window.enterDemoRole = function(role){
+  const user = state.data.users.find(u=>u.role===role);
+  state.currentUser = user;
+  closeModal();
+  enterApp(role);
+};
+
+/* ===================================================================
+   ENTER APP (par rôle)
+   =================================================================== */
+async function enterApp(role){
+  showLoader(true);
+  if(state.mode!=='demo'){
+    await loadFromBackend();
+  }
+  showLoader(false);
+  if(role==='passenger')  setupPassengerApp();
+  else if(role==='captain') setupCaptainApp();
+  else if(role==='admin')   setupAdminApp();
+  startPolling();
+}
+
+async function loadFromBackend(){
+  const res = await api('getState');
+  if(res && res.success && res.data){
+    state.data.users = res.data.users || [];
+    state.data.rides = res.data.rides || [];
+    state.data.audit = res.data.audit || [];
+    LS.set('dataCache', state.data);
+  } else {
+    const cached = LS.get('dataCache');
+    if(cached){
+      state.data = cached;
+      toast('Mode hors-ligne (cache local)', 'warning');
+    } else if(state.data.users.length===0){
+      // No data and no cache: bootstrap minimal admin so login works
+      state.data.users = [{ id:'adm-1', role:'admin', name:'Administrateur', phone:'', pin:'1290#5', active:true }];
+      toast('Aucune donnée distante — admin par défaut PIN 1290#5', 'info');
+    }
+  }
+}
+
+function logout(){
+  stopPolling();
+  stopGeoWatch();
+  if(state.mode==='demo'){
+    state.data = { users:[], rides:[], audit:[] };
+  }
+  state.mode = 'real';
+  state.currentUser = null;
+  state.pinBuffer = '';
+  state.liveRideId = null;
+  LS.del('user');
+  showView('splash');
+  toast('Déconnexion réussie', 'success');
+}
+
+/* ===================================================================
+   PASSENGER APP
+   =================================================================== */
+function setupPassengerApp(){
+  showView('passenger');
+  populatePortSelects();
+  document.getElementById('fromPort').value = 'fdf';
+  document.getElementById('toPort').value = 'ti';
+  updateFarePreview();
+  ['fromPort','toPort','paxCount'].forEach(id=>{
+    document.getElementById(id).addEventListener('change', updateFarePreview);
+  });
+  document.getElementById('btnRequestRide').onclick = onRequestRide;
+  document.getElementById('paxRefreshBtn').onclick = refreshData;
+  document.getElementById('paxLogoutBtn').onclick = logout;
+  document.getElementById('paxProfileBtn').onclick = showProfile;
+  document.querySelectorAll('[data-paxtab]').forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll('[data-paxtab]').forEach(x=>x.classList.toggle('active', x===t));
+      document.querySelectorAll('[data-paxsection]').forEach(s=>s.classList.toggle('active', s.dataset.paxsection===t.dataset.paxtab));
+    };
+  });
+  initPassengerMap();
+  renderPassengerLiveRide();
+  renderPassengerRides();
+}
+
+function populatePortSelects(){
+  ['fromPort','toPort'].forEach(id=>{
+    const sel = document.getElementById(id);
+    sel.innerHTML = PORTS.map(p=>`<option value="${p.id}">${p.name}</option>`).join('');
+  });
+}
+function updateFarePreview(){
+  const from = document.getElementById('fromPort').value;
+  const to = document.getElementById('toPort').value;
+  if(from===to){
+    document.getElementById('fareTotal').textContent = '—';
+    document.getElementById('btnRequestRide').disabled = true;
+    return;
+  }
+  document.getElementById('btnRequestRide').disabled = false;
+  const fare = getFare(from,to);
+  document.getElementById('fareTotal').textContent = fare+' €';
+}
+
+async function onRequestRide(){
+  const from = document.getElementById('fromPort').value;
+  const to = document.getElementById('toPort').value;
+  if(from===to){ toast('Choisis deux ports différents','warning'); return; }
+  const paxCount = parseInt(document.getElementById('paxCount').value,10);
+  const note = document.getElementById('paxNote').value.trim();
+  const fare = getFare(from,to);
+  const commission = +(fare*COMMISSION_RATE).toFixed(2);
+  const ride = {
+    id: 'r-'+Date.now().toString(36),
+    createdAt: Date.now(),
+    startedAt:null, completedAt:null,
+    passengerId: state.currentUser.id,
+    captainId: null,
+    from, to, status:'pending',
+    paxCount, price:fare,
+    commission,
+    captainEarning: +(fare-commission).toFixed(2),
+    distance: +(getDistanceKm(PORT_BY_ID[from],PORT_BY_ID[to])).toFixed(2),
+    note
+  };
+  state.data.rides.push(ride);
+  state.liveRideId = ride.id;
+  addAudit(state.currentUser.id, 'ride_requested', PORT_BY_ID[from].name+' → '+PORT_BY_ID[to].name);
+  await api('newRide', ride);
+  toast('Demande envoyée aux capitaines disponibles','success','🚤');
+  document.getElementById('paxNote').value = '';
+  renderPassengerLiveRide();
+  renderPassengerRides();
+  refreshPassengerMap();
+}
+
+async function cancelRide(rideId){
+  if(!confirm('Annuler cette course ?')) return;
+  const r = state.data.rides.find(x=>x.id===rideId);
+  if(!r) return;
+  r.status='cancelled';
+  r.completedAt = Date.now();
+  state.liveRideId = null;
+  addAudit(state.currentUser.id,'ride_cancelled',rideId);
+  await api('updateRide', r);
+  toast('Course annulée','info');
+  renderPassengerLiveRide();
+  renderPassengerRides();
+}
+
+function renderPassengerLiveRide(){
+  const box = document.getElementById('liveRideBox');
+  const myRides = ridesForUser(state.currentUser.id,'passenger')
+    .filter(r=>['pending','accepted','in_progress'].includes(r.status))
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  if(!myRides.length){ box.innerHTML=''; state.liveRideId=null; return; }
+  const r = myRides[0];
+  state.liveRideId = r.id;
+  const captain = r.captainId ? userById(r.captainId) : null;
+  const statusLabel = {
+    pending:'En attente d\'un capitaine',
+    accepted:'Capitaine en route',
+    in_progress:'Traversée en cours'
+  }[r.status];
+  box.innerHTML = `
+    <div class="live-ride">
+      <h4><span class="live-dot"></span> ${statusLabel}</h4>
+      <div class="live-ride-info">
+        <div><strong>${PORT_BY_ID[r.from].name}</strong> → <strong>${PORT_BY_ID[r.to].name}</strong></div>
+        <div>${r.paxCount} passager(s) • ${r.price} €</div>
+        ${captain ? `<div style="margin-top:6px;">⚓ ${captain.name} — ${captain.boat||''}</div>`:''}
+        ${captain ? `<div>📞 ${captain.phone}</div>`:'<div style="margin-top:6px;">⏳ Recherche d\'un capitaine disponible…</div>'}
+      </div>
+      <div class="live-ride-actions">
+        ${r.status==='pending' ? `<button class="btn btn-secondary btn-sm" onclick="cancelRide('${r.id}')">Annuler</button>`:''}
+        ${captain ? `<a class="btn btn-secondary btn-sm" href="tel:${captain.phone}">Appeler</a>`:''}
+      </div>
+    </div>`;
+}
+
+function renderPassengerRides(){
+  const list = document.getElementById('paxRidesList');
+  const rides = ridesForUser(state.currentUser.id,'passenger')
+    .sort((a,b)=>b.createdAt-a.createdAt);
+  if(!rides.length){
+    list.innerHTML = `<div class="empty-state"><span class="empty-emoji">🗺️</span><p>Aucune course pour l'instant.</p></div>`;
+    return;
+  }
+  list.innerHTML = rides.map(r=>{
+    const cap = r.captainId ? userById(r.captainId) : null;
+    return `<div class="ride-card" onclick="showRideDetails('${r.id}')">
+      <div class="ride-card-head">
+        <div>
+          <div class="ride-route">${PORT_BY_ID[r.from].name}<span class="arrow">→</span>${PORT_BY_ID[r.to].name}</div>
+          <div class="ride-meta">${formatDate(r.createdAt)} • ${r.paxCount} pers.${cap?' • ⚓ '+cap.name:''}</div>
+        </div>
+        <div>
+          <div class="ride-price">${r.price} €</div>
+          <div style="margin-top:6px;">${statusBadge(r.status)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+/* MAP — passenger view : ports + capitaine assigné + soi */
+function initPassengerMap(){
+  if(state.map){ state.map.remove(); }
+  state.map = L.map('map', { zoomControl:true, attributionControl:false }).setView([14.59,-61.07],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:18 }).addTo(state.map);
+  PORTS.forEach(p=>{
+    const icon = L.divIcon({ className:'', html:`<div class="port-marker">📍 ${p.name}</div>`, iconAnchor:[40,12] });
+    L.marker([p.lat,p.lng],{icon}).addTo(state.map);
+  });
+  refreshPassengerMap();
+}
+function refreshPassengerMap(){
+  if(!state.map) return;
+  Object.values(state.mapMarkers).forEach(m=>state.map.removeLayer(m));
+  state.mapMarkers = {};
+  const ride = state.liveRideId ? state.data.rides.find(r=>r.id===state.liveRideId) : null;
+  if(ride && ride.captainId){
+    const cap = userById(ride.captainId);
+    if(cap && cap.lastPos){
+      const icon = L.divIcon({ className:'', html:'<div class="boat-marker">🛥️</div>', iconAnchor:[19,19] });
+      state.mapMarkers.cap = L.marker([cap.lastPos.lat, cap.lastPos.lng], {icon}).addTo(state.map);
+      state.mapMarkers.cap.bindPopup(`<strong>${cap.name}</strong><br>${cap.boat||''}`);
+    } else {
+      // En démo on simule une position : un point au milieu entre les ports
+      const f = PORT_BY_ID[ride.from], t = PORT_BY_ID[ride.to];
+      const lat = (f.lat+t.lat)/2 + 0.005*Math.sin(Date.now()/8000);
+      const lng = (f.lng+t.lng)/2 + 0.005*Math.cos(Date.now()/8000);
+      const icon = L.divIcon({ className:'', html:'<div class="boat-marker">🛥️</div>', iconAnchor:[19,19] });
+      state.mapMarkers.cap = L.marker([lat,lng], {icon}).addTo(state.map);
+    }
+  }
+}
+
+/* ===================================================================
+   CAPTAIN APP
+   =================================================================== */
+function setupCaptainApp(){
+  showView('captain');
+  const me = state.currentUser;
+  document.getElementById('capBoatLabel').textContent = me.boat || '—';
+  document.getElementById('capAvailSwitch').onclick = toggleCaptainAvail;
+  document.getElementById('capRefreshBtn').onclick = refreshData;
+  document.getElementById('capLogoutBtn').onclick = logout;
+  document.getElementById('capProfileBtn').onclick = showProfile;
+  document.querySelectorAll('[data-captab]').forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll('[data-captab]').forEach(x=>x.classList.toggle('active', x===t));
+      document.querySelectorAll('[data-capsection]').forEach(s=>s.classList.toggle('active', s.dataset.capsection===t.dataset.captab));
+    };
+  });
+  initCaptainMap();
+  renderCaptainDashboard();
+  renderCaptainRequests();
+  renderCaptainHistory();
+  renderCaptainLiveRide();
+}
+
+function toggleCaptainAvail(){
+  state.captainAvailable = !state.captainAvailable;
+  document.getElementById('capAvailSwitch').classList.toggle('on', state.captainAvailable);
+  document.getElementById('capAvailLabel').textContent = 'Statut : '+(state.captainAvailable?'En service':'Hors-ligne');
+  if(state.captainAvailable){
+    startGeoWatch();
+    toast('Vous êtes en service','success','⚓');
+    addAudit(state.currentUser.id,'captain_online','Mise en service');
+    api('captainStatus', { id:state.currentUser.id, online:true });
+  } else {
+    stopGeoWatch();
+    toast('Vous êtes hors-ligne','info');
+    addAudit(state.currentUser.id,'captain_offline','Fin de service');
+    api('captainStatus', { id:state.currentUser.id, online:false });
+  }
+}
+
+function startGeoWatch(){
+  if(!('geolocation' in navigator)){
+    toast('Géolocalisation non supportée','warning');
+    return;
+  }
+  document.getElementById('capGpsStatus').textContent = 'GPS — acquisition…';
+  state.geoWatchId = navigator.geolocation.watchPosition(
+    pos => {
+      const p = { lat:pos.coords.latitude, lng:pos.coords.longitude, ts:Date.now() };
+      state.captainPos = p;
+      state.currentUser.lastPos = p;
+      document.getElementById('capGpsStatus').textContent = 'GPS — '+p.lat.toFixed(4)+', '+p.lng.toFixed(4);
+      refreshCaptainMap();
+      api('captainPos', { id:state.currentUser.id, pos:p });
+    },
+    err => {
+      log('geo err', err);
+      document.getElementById('capGpsStatus').textContent = 'GPS indisponible';
+      // Fallback en démo : position simulée près de Fort-de-France
+      if(state.mode==='demo' && !state.captainPos){
+        state.captainPos = { lat:14.604, lng:-61.073, ts:Date.now() };
+        state.currentUser.lastPos = state.captainPos;
+        refreshCaptainMap();
+      }
+    },
+    { enableHighAccuracy:true, maximumAge:5000, timeout:10000 }
+  );
+}
+function stopGeoWatch(){
+  if(state.geoWatchId!=null){
+    navigator.geolocation.clearWatch(state.geoWatchId);
+    state.geoWatchId = null;
+  }
+  document.getElementById('capGpsStatus').textContent = 'GPS éteint';
+}
+
+function initCaptainMap(){
+  if(state.capMap){ state.capMap.remove(); }
+  state.capMap = L.map('captainMap', { zoomControl:true, attributionControl:false }).setView([14.59,-61.07],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:18 }).addTo(state.capMap);
+  PORTS.forEach(p=>{
+    const icon = L.divIcon({ className:'', html:`<div class="port-marker">📍 ${p.name}</div>`, iconAnchor:[40,12] });
+    L.marker([p.lat,p.lng],{icon}).addTo(state.capMap);
+  });
+  // Position démo simulée pour montrer le bateau si pas de GPS
+  if(state.mode==='demo' && !state.captainPos){
+    state.captainPos = { lat:14.604, lng:-61.073, ts:Date.now() };
+    state.currentUser.lastPos = state.captainPos;
+  }
+  refreshCaptainMap();
+}
+function refreshCaptainMap(){
+  if(!state.capMap) return;
+  Object.values(state.capMapMarkers).forEach(m=>state.capMap.removeLayer(m));
+  state.capMapMarkers = {};
+  if(state.captainPos){
+    const icon = L.divIcon({ className:'', html:'<div class="boat-marker">🛥️</div>', iconAnchor:[19,19] });
+    state.capMapMarkers.me = L.marker([state.captainPos.lat,state.captainPos.lng], {icon}).addTo(state.capMap);
+  }
+}
+
+function renderCaptainDashboard(){
+  const me = state.currentUser;
+  const myRides = ridesForUser(me.id,'captain');
+  const completed = myRides.filter(r=>r.status==='completed');
+  const today = Date.now() - 24*3600000;
+  const weekAgo = Date.now() - 7*24*3600000;
+  const todayEarn = completed.filter(r=>r.completedAt>=today).reduce((a,r)=>a+r.captainEarning,0);
+  const weekEarn = completed.filter(r=>r.completedAt>=weekAgo).reduce((a,r)=>a+r.captainEarning,0);
+  document.getElementById('capStatToday').textContent = todayEarn.toFixed(0)+' €';
+  document.getElementById('capStatWeek').textContent = weekEarn.toFixed(0)+' €';
+  document.getElementById('capStatAll').textContent = completed.length;
+}
+function renderCaptainRequests(){
+  const list = document.getElementById('capRequestsList');
+  // pending rides not yet assigned + rides assigned to me but accepted
+  const pending = state.data.rides.filter(r=>r.status==='pending');
+  if(!pending.length){
+    list.innerHTML = `<div class="empty-state"><span class="empty-emoji">📭</span><p>Aucune demande en attente.</p></div>`;
+    return;
+  }
+  list.innerHTML = pending.map(r=>{
+    const pax = userById(r.passengerId);
+    return `<div class="ride-card">
+      <div class="ride-card-head">
+        <div>
+          <div class="ride-route">${PORT_BY_ID[r.from].name}<span class="arrow">→</span>${PORT_BY_ID[r.to].name}</div>
+          <div class="ride-meta">${pax?pax.name:'?'} • ${r.paxCount} pers. • ${formatDate(r.createdAt)}</div>
+          ${r.note?`<div class="ride-meta" style="font-style:italic;">« ${r.note} »</div>`:''}
+        </div>
+        <div>
+          <div class="ride-price">${r.price} €</div>
+          <div class="ride-meta" style="text-align:right;">Vous percevez ${r.captainEarning} €</div>
+        </div>
+      </div>
+      <div class="ride-actions">
+        <button class="btn btn-primary btn-sm" onclick="acceptRide('${r.id}')">✅ Accepter</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderCaptainHistory(){
+  const list = document.getElementById('capHistoryList');
+  const me = state.currentUser;
+  const rides = ridesForUser(me.id,'captain').sort((a,b)=>b.createdAt-a.createdAt);
+  if(!rides.length){
+    list.innerHTML = `<div class="empty-state"><span class="empty-emoji">📋</span><p>Pas encore d'historique.</p></div>`;
+    return;
+  }
+  list.innerHTML = rides.map(r=>{
+    const pax = userById(r.passengerId);
+    return `<div class="ride-card" onclick="showRideDetails('${r.id}')">
+      <div class="ride-card-head">
+        <div>
+          <div class="ride-route">${PORT_BY_ID[r.from].name}<span class="arrow">→</span>${PORT_BY_ID[r.to].name}</div>
+          <div class="ride-meta">${formatDate(r.createdAt)} • ${pax?pax.name:'?'}</div>
+        </div>
+        <div>
+          <div class="ride-price">+${r.captainEarning} €</div>
+          <div style="margin-top:6px;">${statusBadge(r.status)}</div>
+        </div>
+      </div>
+    </div>`;
+  }).join('');
+}
+function renderCaptainLiveRide(){
+  const box = document.getElementById('capLiveRideBox');
+  const me = state.currentUser;
+  const active = ridesForUser(me.id,'captain').find(r=>['accepted','in_progress'].includes(r.status));
+  if(!active){ box.innerHTML=''; return; }
+  const pax = userById(active.passengerId);
+  box.innerHTML = `
+    <div class="live-ride">
+      <h4><span class="live-dot"></span> ${active.status==='accepted'?'Course acceptée':'Traversée en cours'}</h4>
+      <div class="live-ride-info">
+        <div><strong>${PORT_BY_ID[active.from].name}</strong> → <strong>${PORT_BY_ID[active.to].name}</strong></div>
+        <div>${pax?pax.name:''} • ${active.paxCount} pers. • +${active.captainEarning} €</div>
+        ${pax?`<div>📞 ${pax.phone}</div>`:''}
+        ${active.note?`<div style="margin-top:6px;font-style:italic;">« ${active.note} »</div>`:''}
+      </div>
+      <div class="live-ride-actions">
+        ${pax?`<a class="btn btn-secondary btn-sm" href="tel:${pax.phone}">Appeler</a>`:''}
+        ${active.status==='accepted' ? `<button class="btn btn-accent btn-sm" onclick="startRide('${active.id}')">▶️ Démarrer</button>`:''}
+        ${active.status==='in_progress' ? `<button class="btn btn-success btn-sm" onclick="completeRide('${active.id}')">✅ Terminer</button>`:''}
+      </div>
+    </div>`;
+}
+
+window.acceptRide = async function(rideId){
+  const r = state.data.rides.find(x=>x.id===rideId);
+  if(!r) return;
+  if(!state.captainAvailable){ toast('Active ton statut « En service » d\'abord','warning'); return; }
+  r.captainId = state.currentUser.id;
+  r.status = 'accepted';
+  addAudit(state.currentUser.id,'ride_accepted',rideId);
+  await api('updateRide', r);
+  toast('Course acceptée','success','✅');
+  renderCaptainRequests();
+  renderCaptainLiveRide();
+};
+window.startRide = async function(rideId){
+  const r = state.data.rides.find(x=>x.id===rideId);
+  if(!r) return;
+  r.status = 'in_progress';
+  r.startedAt = Date.now();
+  addAudit(state.currentUser.id,'ride_started',rideId);
+  await api('updateRide', r);
+  toast('Traversée démarrée','info','🚤');
+  renderCaptainLiveRide();
+};
+window.completeRide = async function(rideId){
+  const r = state.data.rides.find(x=>x.id===rideId);
+  if(!r) return;
+  r.status = 'completed';
+  r.completedAt = Date.now();
+  addAudit(state.currentUser.id,'ride_completed',rideId);
+  await api('updateRide', r);
+  toast('Course terminée — +'+r.captainEarning+' € (commission TaxiBato '+r.commission+' €)','success','💰');
+  renderCaptainLiveRide();
+  renderCaptainHistory();
+  renderCaptainDashboard();
+};
+
+/* ===================================================================
+   ADMIN APP
+   =================================================================== */
+function setupAdminApp(){
+  showView('admin');
+  document.getElementById('adminRefreshBtn').onclick = refreshData;
+  document.getElementById('adminLogoutBtn').onclick = logout;
+  document.getElementById('btnAddCaptain').onclick = ()=>openUserForm('captain');
+  document.getElementById('btnAddPax').onclick = ()=>openUserForm('passenger');
+  document.querySelectorAll('[data-admtab]').forEach(t=>{
+    t.onclick = ()=>{
+      document.querySelectorAll('[data-admtab]').forEach(x=>x.classList.toggle('active', x===t));
+      document.querySelectorAll('[data-admsection]').forEach(s=>s.classList.toggle('active', s.dataset.admsection===t.dataset.admtab));
+    };
+  });
+  initAdminMap();
+  renderAdminAll();
+}
+function renderAdminAll(){
+  renderAdminDashboard();
+  renderAdminRides();
+  renderAdminCaptains();
+  renderAdminPassengers();
+  renderAdminAudit();
+  refreshAdminMap();
+}
+function renderAdminDashboard(){
+  const rides = state.data.rides;
+  const completed = rides.filter(r=>r.status==='completed');
+  const revenue = completed.reduce((a,r)=>a+r.price,0);
+  const commission = completed.reduce((a,r)=>a+r.commission,0);
+  const active = rides.filter(r=>['pending','accepted','in_progress'].includes(r.status)).length;
+  const captains = state.data.users.filter(u=>u.role==='captain'&&u.active!==false).length;
+  const pax = state.data.users.filter(u=>u.role==='passenger'&&u.active!==false).length;
+  document.getElementById('admStatRevenue').textContent = revenue.toFixed(0)+' €';
+  document.getElementById('admStatCommission').textContent = commission.toFixed(2)+' €';
+  document.getElementById('admStatRides').textContent = completed.length;
+  document.getElementById('admStatActive').textContent = active;
+  document.getElementById('admStatCaptains').textContent = captains;
+  document.getElementById('admStatPax').textContent = pax;
+}
+function renderAdminRides(){
+  const tbl = document.getElementById('admRidesTable');
+  const rides = [...state.data.rides].sort((a,b)=>b.createdAt-a.createdAt);
+  tbl.innerHTML = `
+    <thead><tr>
+      <th>Date</th><th>Trajet</th><th>Passager</th><th>Capitaine</th>
+      <th>Statut</th><th class="text-right">Prix</th><th class="text-right">Commission</th>
+    </tr></thead>
+    <tbody>${rides.map(r=>{
+      const pax = userById(r.passengerId);
+      const cap = r.captainId ? userById(r.captainId) : null;
+      return `<tr style="cursor:pointer;" onclick="showRideDetails('${r.id}')">
+        <td>${formatDate(r.createdAt)}</td>
+        <td>${PORT_BY_ID[r.from].name} → ${PORT_BY_ID[r.to].name}</td>
+        <td>${pax?pax.name:'—'}</td>
+        <td>${cap?cap.name:'<span class="muted">en attente</span>'}</td>
+        <td>${statusBadge(r.status)}</td>
+        <td class="text-right">${r.price} €</td>
+        <td class="text-right"><strong>${r.commission.toFixed(2)} €</strong></td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function renderAdminCaptains(){
+  const tbl = document.getElementById('admCaptainsTable');
+  const list = state.data.users.filter(u=>u.role==='captain').sort((a,b)=>a.name.localeCompare(b.name));
+  tbl.innerHTML = `
+    <thead><tr>
+      <th>Nom</th><th>Téléphone</th><th>Bateau</th><th>Port d'attache</th>
+      <th class="text-right">Courses</th><th class="text-right">Revenus</th><th></th>
+    </tr></thead>
+    <tbody>${list.map(u=>{
+      const rides = state.data.rides.filter(r=>r.captainId===u.id && r.status==='completed');
+      const earn = rides.reduce((a,r)=>a+r.captainEarning,0);
+      return `<tr>
+        <td><strong>${u.name}</strong>${u.active===false?' <span class="badge badge-neutral">Inactif</span>':''}</td>
+        <td>${u.phone||'—'}</td>
+        <td>${u.boat||'—'}</td>
+        <td>${u.port?PORT_BY_ID[u.port].name:'—'}</td>
+        <td class="text-right">${rides.length}</td>
+        <td class="text-right"><strong>${earn.toFixed(0)} €</strong></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openUserForm('captain','${u.id}')">✏️</button></td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function renderAdminPassengers(){
+  const tbl = document.getElementById('admPaxTable');
+  const list = state.data.users.filter(u=>u.role==='passenger').sort((a,b)=>a.name.localeCompare(b.name));
+  tbl.innerHTML = `
+    <thead><tr>
+      <th>Nom</th><th>Téléphone</th><th class="text-right">Courses</th><th class="text-right">Dépensé</th><th></th>
+    </tr></thead>
+    <tbody>${list.map(u=>{
+      const rides = state.data.rides.filter(r=>r.passengerId===u.id && r.status==='completed');
+      const spent = rides.reduce((a,r)=>a+r.price,0);
+      return `<tr>
+        <td><strong>${u.name}</strong>${u.active===false?' <span class="badge badge-neutral">Inactif</span>':''}</td>
+        <td>${u.phone||'—'}</td>
+        <td class="text-right">${rides.length}</td>
+        <td class="text-right"><strong>${spent.toFixed(0)} €</strong></td>
+        <td><button class="btn btn-ghost btn-sm" onclick="openUserForm('passenger','${u.id}')">✏️</button></td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function renderAdminAudit(){
+  const tbl = document.getElementById('admAuditTable');
+  const list = [...state.data.audit].sort((a,b)=>b.timestamp-a.timestamp).slice(0,200);
+  tbl.innerHTML = `
+    <thead><tr><th>Date</th><th>Utilisateur</th><th>Action</th><th>Détail</th></tr></thead>
+    <tbody>${list.map(a=>{
+      const u = a.userId ? userById(a.userId) : null;
+      return `<tr>
+        <td>${formatDate(a.timestamp)}</td>
+        <td>${u?u.name:'<span class="muted">anonyme</span>'}</td>
+        <td><code>${a.action}</code></td>
+        <td>${a.detail||''}</td>
+      </tr>`;
+    }).join('')}</tbody>`;
+}
+function initAdminMap(){
+  if(state.admMap){ state.admMap.remove(); }
+  state.admMap = L.map('adminMap', { zoomControl:true, attributionControl:false }).setView([14.59,-61.07],12);
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{ maxZoom:18 }).addTo(state.admMap);
+  PORTS.forEach(p=>{
+    const icon = L.divIcon({ className:'', html:`<div class="port-marker">📍 ${p.name}</div>`, iconAnchor:[40,12] });
+    L.marker([p.lat,p.lng],{icon}).addTo(state.admMap);
+  });
+  refreshAdminMap();
+}
+function refreshAdminMap(){
+  if(!state.admMap) return;
+  Object.values(state.admMapMarkers).forEach(m=>state.admMap.removeLayer(m));
+  state.admMapMarkers = {};
+  // En démo : on simule des positions de bateaux actifs
+  const activeCaptains = state.data.users.filter(u=>u.role==='captain' && u.active!==false);
+  activeCaptains.forEach((c, i)=>{
+    let pos = c.lastPos;
+    if(!pos && state.mode==='demo'){
+      // Simulation : position autour de leur port d'attache
+      const home = c.port ? PORT_BY_ID[c.port] : PORTS[0];
+      pos = { lat: home.lat + (Math.sin(i+Date.now()/20000)*0.01), lng: home.lng + (Math.cos(i+Date.now()/20000)*0.01) };
+    }
+    if(!pos) return;
+    const icon = L.divIcon({ className:'', html:'<div class="boat-marker">🛥️</div>', iconAnchor:[19,19] });
+    const m = L.marker([pos.lat,pos.lng], {icon}).addTo(state.admMap);
+    m.bindPopup(`<strong>${c.name}</strong><br>${c.boat||''}`);
+    state.admMapMarkers[c.id] = m;
+  });
+}
+
+/* ===================================================================
+   USER FORM (Admin)
+   =================================================================== */
+function openUserForm(role, userId){
+  const u = userId ? userById(userId) : { id:'u-'+Date.now().toString(36), role, active:true, name:'', phone:'', pin:'', boat:'', port:'fdf' };
+  const isCaptain = role==='captain';
+  const body = `
+    <div class="field">
+      <label class="label">Nom complet *</label>
+      <input class="input" id="f_name" value="${u.name||''}" placeholder="Jean-Marc Belrose">
+    </div>
+    <div class="field">
+      <label class="label">Téléphone</label>
+      <input class="input" id="f_phone" value="${u.phone||''}" placeholder="0696XXXXXX">
+    </div>
+    <div class="field">
+      <label class="label">PIN (6 caractères, chiffres + #) *</label>
+      <input class="input" id="f_pin" value="${u.pin||''}" placeholder="123456" maxlength="6">
+      <div style="font-size:12px;color:var(--text-mute);margin-top:4px;">PINs faibles refusés (000000, 123456, …)</div>
+    </div>
+    ${isCaptain?`
+    <div class="field">
+      <label class="label">Nom du bateau / capacité</label>
+      <input class="input" id="f_boat" value="${u.boat||''}" placeholder="Madinina Express — 8 places">
+    </div>
+    <div class="field">
+      <label class="label">Port d'attache</label>
+      <select class="select" id="f_port">${PORTS.map(p=>`<option value="${p.id}" ${u.port===p.id?'selected':''}>${p.name}</option>`).join('')}</select>
+    </div>`:''}
+    <div class="field">
+      <label class="label">Actif</label>
+      <select class="select" id="f_active"><option value="1" ${u.active!==false?'selected':''}>Oui</option><option value="0" ${u.active===false?'selected':''}>Non</option></select>
+    </div>
+  `;
+  const foot = `
+    <button class="btn btn-ghost" onclick="closeModal()">Annuler</button>
+    ${userId?`<button class="btn btn-danger" onclick="deleteUser('${userId}')">Supprimer</button>`:''}
+    <button class="btn btn-primary" onclick="saveUser('${u.id}','${role}',${userId?'true':'false'})">Enregistrer</button>
+  `;
+  openModal((userId?'Modifier ':'Ajouter ')+(isCaptain?'un capitaine':'un passager'), body, foot);
+}
+window.saveUser = async function(id, role, isEdit){
+  const name = document.getElementById('f_name').value.trim();
+  const phone = document.getElementById('f_phone').value.trim();
+  const pin = document.getElementById('f_pin').value.trim();
+  const active = document.getElementById('f_active').value === '1';
+  const boat = document.getElementById('f_boat') ? document.getElementById('f_boat').value.trim() : '';
+  const port = document.getElementById('f_port') ? document.getElementById('f_port').value : '';
+  if(!name){ toast('Nom requis','warning'); return; }
+  if(!/^[0-9#]{6}$/.test(pin)){ toast('PIN invalide (6 caractères, chiffres + #)','warning'); return; }
+  if(isWeakPin(pin)){ toast('PIN trop faible — choisis-en un autre','warning'); return; }
+  const dup = state.data.users.find(u=>u.pin===pin && u.id!==id);
+  if(dup){ toast('PIN déjà utilisé par '+dup.name,'warning'); return; }
+  let u = userById(id);
+  if(!u){
+    u = { id, role, name, phone, pin, boat, port, active };
+    state.data.users.push(u);
+    addAudit(state.currentUser.id,'user_created',role+': '+name);
+  } else {
+    u.name=name; u.phone=phone; u.pin=pin; u.boat=boat; u.port=port; u.active=active;
+    addAudit(state.currentUser.id,'user_updated',role+': '+name);
+  }
+  await api('saveUser', u);
+  closeModal();
+  toast('Utilisateur enregistré','success');
+  renderAdminAll();
+};
+window.deleteUser = async function(id){
+  if(!confirm('Supprimer cet utilisateur ?')) return;
+  const u = userById(id);
+  state.data.users = state.data.users.filter(x=>x.id!==id);
+  addAudit(state.currentUser.id,'user_deleted',(u?u.name:''));
+  await api('deleteUser', { id });
+  closeModal();
+  toast('Utilisateur supprimé','info');
+  renderAdminAll();
+};
+
+/* ===================================================================
+   PROFILE (passager / capitaine)
+   =================================================================== */
+function showProfile(){
+  const u = state.currentUser;
+  const body = `
+    <div class="field"><label class="label">Nom</label><div class="font-semi">${u.name}</div></div>
+    <div class="field"><label class="label">Téléphone</label><div>${u.phone||'—'}</div></div>
+    ${u.role==='captain'?`<div class="field"><label class="label">Bateau</label><div>${u.boat||'—'}</div></div>`:''}
+    <div class="divider"></div>
+    <h4 style="margin-bottom:10px;">Changer mon PIN</h4>
+    <div class="field"><label class="label">Nouveau PIN (6 car., chiffres + #)</label>
+      <input class="input" id="f_newpin" maxlength="6" placeholder="••••••"></div>
+  `;
+  const foot = `
+    <button class="btn btn-ghost" onclick="closeModal()">Fermer</button>
+    <button class="btn btn-primary" onclick="changePin()">Enregistrer le PIN</button>
+  `;
+  openModal('Mon profil', body, foot);
+}
+window.changePin = async function(){
+  const newPin = document.getElementById('f_newpin').value.trim();
+  if(!/^[0-9#]{6}$/.test(newPin)){ toast('PIN invalide','warning'); return; }
+  if(isWeakPin(newPin)){ toast('PIN trop faible','warning'); return; }
+  const dup = state.data.users.find(u=>u.pin===newPin && u.id!==state.currentUser.id);
+  if(dup){ toast('PIN déjà utilisé','warning'); return; }
+  state.currentUser.pin = newPin;
+  addAudit(state.currentUser.id,'pin_changed','PIN modifié par l\'utilisateur');
+  await api('saveUser', state.currentUser);
+  closeModal();
+  toast('PIN mis à jour','success');
+};
+
+/* ===================================================================
+   RIDE DETAILS
+   =================================================================== */
+window.showRideDetails = function(rideId){
+  const r = state.data.rides.find(x=>x.id===rideId);
+  if(!r) return;
+  const pax = userById(r.passengerId);
+  const cap = r.captainId ? userById(r.captainId) : null;
+  const body = `
+    <div class="field">
+      <label class="label">Trajet</label>
+      <div class="font-bold text-lg">${PORT_BY_ID[r.from].name} → ${PORT_BY_ID[r.to].name}</div>
+      <div class="text-sm muted">${r.distance} km</div>
+    </div>
+    <div class="field"><label class="label">Statut</label><div>${statusBadge(r.status)}</div></div>
+    <div class="field"><label class="label">Passager</label><div>${pax?pax.name+' • '+pax.phone:'—'} (${r.paxCount} pers.)</div></div>
+    <div class="field"><label class="label">Capitaine</label><div>${cap?cap.name+' — '+(cap.boat||''):'—'}</div></div>
+    ${r.note?`<div class="field"><label class="label">Note</label><div style="font-style:italic;">« ${r.note} »</div></div>`:''}
+    <div class="divider"></div>
+    <div class="field flex justify-between"><span class="label" style="margin:0;">Prix total</span><strong>${r.price} €</strong></div>
+    <div class="field flex justify-between"><span class="label" style="margin:0;">Commission TaxiBato (10%)</span><strong style="color:var(--accent);">${r.commission.toFixed(2)} €</strong></div>
+    <div class="field flex justify-between"><span class="label" style="margin:0;">Capitaine perçoit</span><strong style="color:var(--success);">${r.captainEarning.toFixed(2)} €</strong></div>
+    <div class="divider"></div>
+    <div class="text-sm muted">
+      <div>Créée : ${formatDate(r.createdAt)}</div>
+      ${r.startedAt?`<div>Démarrée : ${formatDate(r.startedAt)}</div>`:''}
+      ${r.completedAt?`<div>Terminée : ${formatDate(r.completedAt)}</div>`:''}
+    </div>
+  `;
+  openModal('Course #'+r.id.slice(-6).toUpperCase(), body, `<button class="btn btn-ghost" onclick="closeModal()">Fermer</button>`);
+};
+
+/* ===================================================================
+   UTILS
+   =================================================================== */
+function statusBadge(s){
+  const m = {
+    pending:    ['badge-warning','En attente'],
+    accepted:   ['badge-info','Acceptée'],
+    in_progress:['badge-info','En cours'],
+    completed:  ['badge-success','Terminée'],
+    cancelled:  ['badge-danger','Annulée']
+  };
+  const [cls,lbl] = m[s] || ['badge-neutral',s];
+  return `<span class="badge ${cls}">${lbl}</span>`;
+}
+function formatDate(ts){
+  if(!ts) return '—';
+  const d = new Date(ts);
+  const today = new Date(); today.setHours(0,0,0,0);
+  const dts = new Date(d); dts.setHours(0,0,0,0);
+  const diff = (today-dts)/86400000;
+  const time = d.toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'});
+  if(diff===0) return "Aujourd'hui "+time;
+  if(diff===1) return "Hier "+time;
+  return d.toLocaleDateString('fr-FR',{day:'2-digit',month:'short'})+' '+time;
+}
+function addAudit(userId, action, detail){
+  state.data.audit.unshift({ id:'a-'+Date.now().toString(36), timestamp:Date.now(), userId, action, detail });
+  if(state.data.audit.length>500) state.data.audit.length = 500;
+}
+
+/* ───────── POLLING / REFRESH ───────── */
+function startPolling(){
+  stopPolling();
+  state.pollTimer = setInterval(()=>{ refreshDataSilent(); }, POLL_INTERVAL);
+}
+function stopPolling(){
+  if(state.pollTimer){ clearInterval(state.pollTimer); state.pollTimer = null; }
+}
+async function refreshData(){
+  showLoader(true);
+  await refreshDataSilent();
+  showLoader(false);
+  toast('Synchronisé','success','🔄');
+}
+async function refreshDataSilent(){
+  if(state.mode==='demo'){
+    // En démo on actualise simplement les affichages (positions simulées qui bougent)
+    if(state.view==='passenger'){ refreshPassengerMap(); renderPassengerLiveRide(); renderPassengerRides(); }
+    else if(state.view==='captain'){ renderCaptainRequests(); renderCaptainLiveRide(); renderCaptainHistory(); renderCaptainDashboard(); }
+    else if(state.view==='admin'){ renderAdminAll(); }
+    return;
+  }
+  await loadFromBackend();
+  if(state.view==='passenger'){ refreshPassengerMap(); renderPassengerLiveRide(); renderPassengerRides(); }
+  else if(state.view==='captain'){ renderCaptainRequests(); renderCaptainLiveRide(); renderCaptainHistory(); renderCaptainDashboard(); refreshCaptainMap(); }
+  else if(state.view==='admin'){ renderAdminAll(); }
+}
+
+/* ───────── BOOT ───────── */
+window.addEventListener('load', async ()=>{
+  // PWA manifest dynamique
+  const manifest = {
+    name:'TaxiBato', short_name:'TaxiBato',
+    start_url:'.', display:'standalone',
+    background_color:'#0d6b6e', theme_color:'#0d6b6e',
+    icons:[{ src:"data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' rx='22' fill='%230d6b6e'/><text x='50' y='68' font-size='60' text-anchor='middle'>🛥️</text></svg>", sizes:'192x192', type:'image/svg+xml' }]
+  };
+  const blob = new Blob([JSON.stringify(manifest)],{type:'application/manifest+json'});
+  const link = document.createElement('link');
+  link.rel = 'manifest'; link.href = URL.createObjectURL(blob);
+  document.head.appendChild(link);
+
+  // Lockout state
+  state.lockedUntil = LS.get('lockedUntil',0);
+  state.attempts = LS.get('attempts',0);
+
+  log('Boot v'+APP_VERSION+', backend='+(BACKEND_URL?'configured':'(none)'));
+  showView('splash');
+});
+</script>
+</body>
+</html>
