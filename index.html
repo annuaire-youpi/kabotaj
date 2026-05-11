@@ -891,7 +891,7 @@ a{color:var(--primary);text-decoration:none;}
     </div>
     <button class="splash-demo" id="btnDemo">🎭 Mode démonstration — Tester sans compte</button>
   </div>
-  <div class="splash-footer">v0.4 — 2026 • TaxiBato Martinique</div>
+  <div class="splash-footer">v0.4.1 — 2026 • TaxiBato Martinique</div>
 </section>
 
 <!-- ===================== LOGIN ===================== -->
@@ -1211,7 +1211,7 @@ a{color:var(--primary);text-decoration:none;}
 /* =================================================================
    TaxiBato v0.1 — Transport maritime à la demande Martinique
    ================================================================= */
-const APP_VERSION = 'v0.4';
+const APP_VERSION = 'v0.4.1';
 const APP_NAME = 'TaxiBato';
 
 /* ───────── CONFIG BACKEND ──────────
@@ -1219,7 +1219,7 @@ const APP_NAME = 'TaxiBato';
    (Déploiement > Nouveau déploiement > Application Web).
    Laisse vide ('') pour mode 100% local (localStorage uniquement).
 */
-const BACKEND_URL = 'https://script.google.com/macros/s/AKfycbx3Stj9OERDWx8JqFOdoWuuoZX4d9dAp31KMOH9iRedsclE9MM61T5d9pVImvqGNGJY/exec';
+const BACKEND_URL = '';
 const COMMISSION_RATE = 0.10;
 const POLL_INTERVAL = 8000; // ms
 
@@ -2779,6 +2779,18 @@ window.addEventListener('load', async ()=>{
 
   log('Boot v'+APP_VERSION+', backend='+(BACKEND_URL?'configured':'(none)'));
   showView('splash');
+
+  // Pré-charger les users du backend pour que le login PIN fonctionne dès le splash
+  // (sinon state.data.users est vide → aucun PIN ne peut matcher)
+  if(BACKEND_URL){
+    try{
+      log('Pré-chargement des utilisateurs depuis le backend…');
+      await loadFromBackend();
+      log('Users chargés:', state.data.users.length);
+    }catch(e){
+      log('Erreur pré-chargement:', e);
+    }
+  }
 });
 </script>
 </body>
