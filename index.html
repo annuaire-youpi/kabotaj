@@ -302,6 +302,36 @@ a{color:var(--primary);text-decoration:none;}
   padding:14px 18px;border-radius:var(--radius);
   margin-bottom:16px;text-align:center;font-weight:600;font-size:14px;
 }
+.demo-accounts{
+  margin-top:24px;width:100%;max-width:340px;
+  background:var(--primary-light);border:1px solid var(--border);
+  border-radius:var(--radius);padding:14px 16px;
+}
+.demo-accounts-title{
+  font-size:12px;font-weight:700;color:var(--primary);
+  text-transform:uppercase;letter-spacing:.5px;
+  margin-bottom:10px;display:flex;align-items:center;gap:6px;
+}
+.demo-account-row{
+  display:flex;align-items:center;justify-content:space-between;
+  background:var(--surface);border:1px solid var(--border-soft);
+  border-radius:10px;padding:10px 12px;margin-bottom:6px;
+  cursor:pointer;transition:all .15s;
+}
+.demo-account-row:last-child{margin-bottom:0;}
+.demo-account-row:hover{border-color:var(--primary);background:#fff;}
+.demo-account-row:active{transform:scale(.98);}
+.demo-account-name{font-size:13px;font-weight:600;color:var(--text);}
+.demo-account-sub{font-size:11px;color:var(--text-mute);margin-top:2px;}
+.demo-account-pin{
+  font-family:'SF Mono',Menlo,monospace;font-size:14px;font-weight:700;
+  color:var(--primary);background:var(--primary-light);
+  padding:4px 10px;border-radius:6px;letter-spacing:1px;
+}
+.demo-accounts-hint{
+  font-size:11px;color:var(--text-mute);text-align:center;
+  margin-top:8px;font-style:italic;
+}
 
 /* ============ APP LAYOUT ============ */
 .app{
@@ -746,7 +776,7 @@ a{color:var(--primary);text-decoration:none;}
     </div>
     <button class="splash-demo" id="btnDemo">🎭 Mode démonstration — Tester sans compte</button>
   </div>
-  <div class="splash-footer">v0.1 — 2026 • TaxiBato Martinique</div>
+  <div class="splash-footer">v0.2 — 2026 • TaxiBato Martinique</div>
 </section>
 
 <!-- ===================== LOGIN ===================== -->
@@ -765,6 +795,7 @@ a{color:var(--primary);text-decoration:none;}
     <div id="loginLocked" class="login-locked hidden"></div>
     <div class="pin-display" id="pinDisplay"></div>
     <div class="keypad" id="keypad"></div>
+    <div id="demoAccountsPanel" class="demo-accounts hidden"></div>
   </div>
 </section>
 
@@ -997,7 +1028,7 @@ a{color:var(--primary);text-decoration:none;}
 /* =================================================================
    TaxiBato v0.1 — Transport maritime à la demande Martinique
    ================================================================= */
-const APP_VERSION = 'v0.1';
+const APP_VERSION = 'v0.2';
 const APP_NAME = 'TaxiBato';
 
 /* ───────── CONFIG BACKEND ──────────
@@ -1234,7 +1265,16 @@ function showView(view){
    SPLASH HANDLERS
    =================================================================== */
 document.querySelectorAll('.role-btn').forEach(btn=>{
-  btn.addEventListener('click', ()=> initLogin(btn.dataset.role));
+  btn.addEventListener('click', ()=>{
+    // Si pas de backend ET pas encore en mode démo : activer auto le mode démo
+    // pour que les PIN de test fonctionnent immédiatement
+    if(!BACKEND_URL && state.mode !== 'demo'){
+      state.mode = 'demo';
+      buildDemoData();
+      document.getElementById('demoBadge').classList.add('active');
+    }
+    initLogin(btn.dataset.role);
+  });
 });
 document.getElementById('btnDemo').addEventListener('click', activateDemo);
 
@@ -1252,8 +1292,46 @@ function initLogin(role){
   document.getElementById('loginSub').textContent = 'PIN à 6 caractères (chiffres + #)';
   renderPinDisplay();
   renderKeypad();
+  renderDemoAccountsPanel(role);
   checkLockState();
   showView('login');
+}
+function renderDemoAccountsPanel(role){
+  const panel = document.getElementById('demoAccountsPanel');
+  if(state.mode !== 'demo'){
+    panel.classList.add('hidden');
+    panel.innerHTML = '';
+    return;
+  }
+  const users = state.data.users.filter(u=>u.role===role && u.active!==false);
+  if(users.length===0){
+    panel.classList.add('hidden');
+    panel.innerHTML = '';
+    return;
+  }
+  const roleLabel = { passenger:'Passagers', captain:'Capitaines', admin:'Administrateurs' }[role];
+  let html = `<div class="demo-accounts-title">🎭 Comptes de démonstration — ${roleLabel}</div>`;
+  users.forEach(u=>{
+    const sub = u.role==='captain' ? (u.boat||'') : (u.role==='admin' ? 'Accès complet' : (u.phone||''));
+    html += `
+      <div class="demo-account-row" data-demo-pin="${u.pin}">
+        <div>
+          <div class="demo-account-name">${u.name}</div>
+          <div class="demo-account-sub">${sub}</div>
+        </div>
+        <div class="demo-account-pin">${u.pin}</div>
+      </div>`;
+  });
+  html += `<div class="demo-accounts-hint">Touche un compte pour te connecter directement</div>`;
+  panel.innerHTML = html;
+  panel.classList.remove('hidden');
+  panel.querySelectorAll('.demo-account-row').forEach(row=>{
+    row.addEventListener('click', ()=>{
+      state.pinBuffer = row.dataset.demoPin;
+      renderPinDisplay();
+      setTimeout(verifyPin, 200);
+    });
+  });
 }
 document.getElementById('loginBack').addEventListener('click', ()=> showView('splash'));
 
