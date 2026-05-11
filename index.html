@@ -891,7 +891,7 @@ a{color:var(--primary);text-decoration:none;}
     </div>
     <button class="splash-demo" id="btnDemo">🎭 Mode démonstration — Tester sans compte</button>
   </div>
-  <div class="splash-footer">v0.4.2 — 2026 • TaxiBato Martinique</div>
+  <div class="splash-footer">v0.5 — 2026 • TaxiBato Martinique</div>
 </section>
 
 <!-- ===================== LOGIN ===================== -->
@@ -1037,6 +1037,9 @@ a{color:var(--primary);text-decoration:none;}
         <div class="map-overlay"><span class="dot-live"></span> <span id="capGpsStatus">Position</span></div>
         <div id="captainMap"></div>
       </div>
+      <button class="btn btn-ghost btn-sm" id="btnSimulateMove" style="margin-top:10px;width:100%;font-size:12px;" onclick="toggleGpsSimulation()">
+        🧭 Simuler le déplacement du bateau (démo)
+      </button>
     </div>
 
     <div class="section" data-capsection="requests">
@@ -1211,7 +1214,7 @@ a{color:var(--primary);text-decoration:none;}
 /* =================================================================
    TaxiBato v0.1 — Transport maritime à la demande Martinique
    ================================================================= */
-const APP_VERSION = 'v0.4.2';
+const APP_VERSION = 'v0.5';
 const APP_NAME = 'TaxiBato';
 
 /* ───────── CONFIG BACKEND ──────────
@@ -1755,7 +1758,6 @@ async function onRequestRide(){
   const note = document.getElementById('paxNote').value.trim();
   const fare = getFare(from,to);
   const commission = +(fare*COMMISSION_RATE).toFixed(2);
-  // Construire la course PRÉ-validée mais on attend la pré-auto carte avant de la créer
   const draft = {
     id: 'r-'+Date.now().toString(36),
     createdAt: Date.now(),
@@ -1772,13 +1774,40 @@ async function onRequestRide(){
     paymentIntentId: null,
     cardLast4: null
   };
-  // Ouvrir le Checkout (simulé en démo, réel via Stripe sinon)
+
+  // ─── MODE RÉEL : redirection Stripe Checkout ───
+  if(state.mode !== 'demo' && BACKEND_URL){
+    showLoader(true);
+    try {
+      // 1. Sauvegarder le brouillon en localStorage (récupération au retour)
+      LS.set('pendingRide', draft);
+      // 2. Persister immédiatement la course en pending_auth dans le backend
+      state.data.rides.push(draft);
+      await api('newRide', draft);
+      addAudit(state.currentUser.id, 'ride_requested', PORT_BY_ID[from].name+' → '+PORT_BY_ID[to].name+' • pré-auto '+fare+'€');
+      // 3. Créer la session Stripe Checkout côté backend
+      const res = await api('createCheckoutSession', { ride: draft });
+      if(!res || !res.success || !res.checkoutUrl){
+        toast('Erreur création paiement : '+(res?.error||'inconnue'),'error');
+        showLoader(false);
+        return;
+      }
+      // 4. Rediriger vers Stripe
+      toast('Redirection vers Stripe…','info','💳');
+      window.location.href = res.checkoutUrl;
+    } catch(e){
+      showLoader(false);
+      toast('Erreur Stripe : '+e.message,'error');
+    }
+    return;
+  }
+
+  // ─── MODE DÉMO : checkout simulé ───
   openStripeCheckout(draft, async (result)=>{
     if(!result.success){
       toast('Paiement annulé — aucun frais','info');
       return;
     }
-    // Pré-autorisation OK, on confirme la course
     draft.paymentStatus = 'authorized';
     draft.paymentIntentId = result.paymentIntentId;
     draft.cardLast4 = result.cardLast4;
@@ -1935,9 +1964,63 @@ function toggleCaptainAvail(){
     api('captainStatus', { id:state.currentUser.id, online:true });
   } else {
     stopGeoWatch();
+    stopGpsSimulation();
     toast('Vous êtes hors-ligne','info');
     addAudit(state.currentUser.id,'captain_offline','Fin de service');
     api('captainStatus', { id:state.currentUser.id, online:false });
+  }
+}
+
+/* ─── Simulation GPS pour démo ─── */
+let _gpsSimTimer = null;
+let _gpsSimStep = 0;
+window.toggleGpsSimulation = function(){
+  if(_gpsSimTimer){ stopGpsSimulation(); return; }
+  if(!state.captainAvailable){
+    toast('Active d\'abord « En service »','warning');
+    return;
+  }
+  // Arrêter le vrai GPS pendant la simu
+  stopGeoWatch();
+  // Trajet simulé : Fort-de-France → Trois-Îlets en 30 étapes (≈1 minute)
+  const start = PORT_BY_ID['fdf'];
+  const end = PORT_BY_ID['ti'];
+  _gpsSimStep = 0;
+  const totalSteps = 30;
+  document.getElementById('btnSimulateMove').textContent = '⏹ Arrêter la simulation';
+  document.getElementById('btnSimulateMove').classList.add('btn-primary');
+  document.getElementById('btnSimulateMove').classList.remove('btn-ghost');
+  toast('🧭 Simulation lancée : FdF → Trois-Îlets','info');
+  _gpsSimTimer = setInterval(()=>{
+    _gpsSimStep++;
+    const t = _gpsSimStep / totalSteps;
+    const lat = start.lat + (end.lat - start.lat) * t + (Math.random()-0.5)*0.0005;
+    const lng = start.lng + (end.lng - start.lng) * t + (Math.random()-0.5)*0.0005;
+    const p = { lat, lng, ts: Date.now() };
+    state.captainPos = p;
+    state.currentUser.lastPos = p;
+    document.getElementById('capGpsStatus').textContent = '🧭 Simu — '+lat.toFixed(4)+', '+lng.toFixed(4);
+    refreshCaptainMap();
+    api('captainPos', { id:state.currentUser.id, pos:p });
+    if(_gpsSimStep >= totalSteps){
+      // Boucle en sens inverse
+      const tmp = start.lat; start.lat = end.lat; end.lat = tmp;
+      const tmpl = start.lng; start.lng = end.lng; end.lng = tmpl;
+      _gpsSimStep = 0;
+    }
+  }, 2000); // toutes les 2 secondes
+};
+function stopGpsSimulation(){
+  if(_gpsSimTimer){
+    clearInterval(_gpsSimTimer);
+    _gpsSimTimer = null;
+    const btn = document.getElementById('btnSimulateMove');
+    if(btn){
+      btn.textContent = '🧭 Simuler le déplacement du bateau (démo)';
+      btn.classList.remove('btn-primary');
+      btn.classList.add('btn-ghost');
+    }
+    if(state.captainAvailable) startGeoWatch();
   }
 }
 
@@ -2542,10 +2625,56 @@ function startStripeOnboarding(){
 }
 window.simulateStripeOnboarding = async function(){
   closeModal();
+
+  // ─── MODE RÉEL : créer compte Stripe + redirection vers onboarding hosted ───
+  if(state.mode !== 'demo' && BACKEND_URL){
+    showLoader(true);
+    try {
+      const cap = state.currentUser;
+      let accountId = cap.stripeAccountId;
+
+      // 1. Si pas encore de compte Connect, on en crée un
+      if(!accountId){
+        toast('Création de ton compte Stripe…','info','💳');
+        const createRes = await api('createConnectAccount', {
+          userId: cap.id,
+          email: cap.phone ? (cap.phone+'@taxibato.demo') : (cap.id+'@taxibato.demo'),
+          name: cap.name
+        });
+        if(!createRes || !createRes.success){
+          showLoader(false);
+          toast('Erreur création compte Stripe : '+(createRes?.error||'inconnue'),'error');
+          return;
+        }
+        accountId = createRes.accountId;
+        cap.stripeAccountId = accountId;
+        cap.stripeStatus = 'pending';
+        await api('saveUser', cap);
+        addAudit(cap.id,'stripe_account_created', accountId);
+      }
+
+      // 2. Générer le lien d'onboarding et rediriger
+      toast('Redirection vers Stripe…','info','💳');
+      const linkRes = await api('getAccountLink', { accountId, userId: cap.id });
+      if(!linkRes || !linkRes.success || !linkRes.url){
+        showLoader(false);
+        toast('Erreur génération lien : '+(linkRes?.error||'inconnue'),'error');
+        return;
+      }
+      // Mémoriser qu'on attend un retour d'onboarding
+      LS.set('pendingOnboarding', { userId: cap.id, accountId });
+      window.location.href = linkRes.url;
+    } catch(e){
+      showLoader(false);
+      toast('Erreur : '+e.message,'error');
+    }
+    return;
+  }
+
+  // ─── MODE DÉMO : simulation ───
   showLoader(true);
   toast('Redirection vers Stripe…', 'info', '💳');
   await new Promise(r=>setTimeout(r, 1500));
-  // En démo : on bascule directement en "pending" puis "active" pour montrer le flow
   state.currentUser.stripeStatus = 'pending';
   state.currentUser.stripeAccountId = 'acct_demo_'+state.currentUser.id;
   await api('saveUser', state.currentUser);
@@ -2791,7 +2920,92 @@ window.addEventListener('load', async ()=>{
       log('Erreur pré-chargement:', e);
     }
   }
+
+  // ─── Gérer le retour de Stripe (paiement ou onboarding) ───
+  await handleStripeReturn();
 });
+
+/* ===================================================================
+   GESTION DU RETOUR DE STRIPE (Checkout / Onboarding)
+   =================================================================== */
+async function handleStripeReturn(){
+  const params = new URLSearchParams(window.location.search);
+  const stripeReturn = params.get('stripe_return');
+  const stripeOnboard = params.get('stripe_onboarding');
+
+  // ─── Retour d'un paiement Stripe Checkout ───
+  if(stripeReturn){
+    const rideId = params.get('ride');
+    const sessionId = params.get('session_id');
+    const pendingRide = LS.get('pendingRide');
+    log('Stripe return:', stripeReturn, 'ride=', rideId, 'session=', sessionId);
+
+    // Nettoyer l'URL (pour pas que ça reparte au prochain load)
+    window.history.replaceState({}, '', window.location.pathname);
+
+    if(stripeReturn === 'success' && pendingRide){
+      // Récupérer l'utilisateur passager
+      const user = state.data.users.find(u=>u.id === pendingRide.passengerId);
+      if(user){
+        state.currentUser = user;
+        state.liveRideId = pendingRide.id;
+        LS.set('user', user);
+        LS.del('pendingRide');
+        toast('✅ Paiement pré-autorisé • '+pendingRide.price+'€ bloqués','success','💳');
+        enterApp('passenger');
+        return;
+      }
+    } else if(stripeReturn === 'cancel' && pendingRide){
+      // Le passager a annulé sur Stripe → on supprime la course
+      try {
+        await api('updateRide', { ...pendingRide, status:'cancelled', paymentStatus:'refunded', completedAt: Date.now() });
+      } catch(e){}
+      LS.del('pendingRide');
+      const user = state.data.users.find(u=>u.id === pendingRide.passengerId);
+      if(user){
+        state.currentUser = user;
+        LS.set('user', user);
+        toast('Paiement annulé — aucun frais','info');
+        enterApp('passenger');
+        return;
+      }
+    }
+  }
+
+  // ─── Retour de l'onboarding Stripe ───
+  if(stripeOnboard){
+    const pendingOnboard = LS.get('pendingOnboarding');
+    log('Onboarding return:', stripeOnboard, pendingOnboard);
+    window.history.replaceState({}, '', window.location.pathname);
+    if(pendingOnboard){
+      const user = state.data.users.find(u=>u.id === pendingOnboard.userId);
+      if(user){
+        state.currentUser = user;
+        LS.set('user', user);
+        // Vérifier le statut Stripe du compte
+        try {
+          showLoader(true);
+          const statusRes = await api('getAccountStatus', { accountId: pendingOnboard.accountId, userId: user.id });
+          if(statusRes && statusRes.success){
+            user.stripeStatus = statusRes.status;
+            await loadFromBackend(); // recharger pour avoir la version à jour
+            const updated = state.data.users.find(u=>u.id === user.id);
+            if(updated) state.currentUser = updated;
+          }
+          showLoader(false);
+        } catch(e){ showLoader(false); }
+        LS.del('pendingOnboarding');
+        if(stripeOnboard === 'return'){
+          toast('✅ Onboarding terminé — vérification en cours','success','💰');
+        } else {
+          toast('Session expirée — relance l\'onboarding','warning');
+        }
+        enterApp('captain');
+        return;
+      }
+    }
+  }
+}
 </script>
 </body>
 </html>
